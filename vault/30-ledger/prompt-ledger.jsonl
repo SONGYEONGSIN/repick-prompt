@@ -1,0 +1,1 @@
+{"run":"2026-07-12-cold-email","candidate":"b","won":true,"auto":true,"reason":"발송 세트 완결성(서명·팔로업·체크리스트)이 승부처 — 심사 19/20 + DNA 리스크 0 (자동선택)","metrics":{"judge_score":19,"judge_rank":1,"dna_violations":0,"fields":7},"principle_delta":"발송 세트 착지 + 사용 맥락 부속물 필드 필수 + optional 토큰 요구사항 줄 재사용 금지 + 본문 구조 마커 금지"}

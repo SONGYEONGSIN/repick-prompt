@@ -1,46 +1,62 @@
-# RE:PROMPT — 빈칸만 채우면 완성되는 프롬프트
+# RE:PROMPT — 프롬프트를 생성하고, 검증하고, 학습하는 루프
 
-AI 초보자를 위한 프롬프트 빌더. 검증된 카테고리별 템플릿의 빈칸을 채우면 완성도 높은 프롬프트가 실시간으로 조립되고, 템플릿마다 붙은 **프롬프트 해부**가 왜 이 구조가 작동하는지 알려줍니다.
+repick-design(디자인 자기개선 루프)과 동일 컨셉의 프롬프트 버전.
+**본체는 진화 루프**입니다 — 지식(vault)으로 프롬프트 템플릿 후보를 생성하고, 실제 결과물로 검증하고, 학습을 원칙에 되돌려 템플릿 라이브러리를 불려갑니다. 웹앱은 그 라이브러리를 초보자가 쓰는 뷰어입니다.
 
-> repick-design(디자인 자기개선 루프)과 동일 컨셉의 프롬프트 버전 — 지식(vault) → 생성(템플릿) → 학습(해부·피드백) 폐루프.
+## 진화 루프 실행 (핵심)
 
-## 실행
-
-```bash
-cd app
-npm install
-npm run dev        # http://localhost:3000
-npm run build      # 프로덕션 빌드 (NODE_ENV=production 강제)
+```
+/prompt-evolve "<타깃 작업>"          # 예: /prompt-evolve "인스타 릴스 대본"
+/prompt-evolve "<타깃 작업>" --auto   # 사람 게이트 없이 자동 선택
 ```
 
-> ⚠️ 셸에 `NODE_ENV=development`가 설정돼 있으면 Next.js 프로덕션 빌드가 깨집니다.
-> build/start 스크립트에 `NODE_ENV=production`을 박아 방지해 두었습니다.
+5단계 (`.claude/skills/prompt-evolve/SKILL.md`):
+
+1. **RETRIEVE** — 프롬프트 DNA(`vault/00-principles`) + 씨앗(`10-references`) + 최근 결정(ledger)
+2. **GENERATE** — 후보 템플릿 N개 병렬 생성 (방향 분산: 최소 빈칸 / 가이드 최대화 / 프레임워크 내장 …)
+3. **AUTO-SCORE** — **동일 시나리오로 실제 결과물 생성** → 블라인드 심사(comparator) + DNA 준수 점검
+4. **HUMAN GATE** — 승자 선택 (`--auto`면 자동, ledger에 기록)
+5. **LEARN** — 원칙 surgical 갱신 + ledger append + **승자를 라이브러리에 승격**
+
+### 진화 이력
+
+| 라운드 | 타깃 | 승자 | 학습 |
+|--------|------|------|------|
+| R1 (2026-07-12) | 콜드 아웃리치 이메일 | b — 가이드 최대화 (심사 19/20) | 승부처는 문장력이 아니라 **발송 세트 완결성**(서명·팔로업·체크리스트) |
 
 ## 구조
 
 ```
 repick-prompt/
-├── app/                        # Next.js 16 + React 19 + Tailwind 4
-│   └── src/
-│       ├── app/                # / (홈), /p/[slug] (빌더)
-│       ├── components/         # explorer, builder, site-header
-│       ├── data/templates.ts   # ★ 템플릿 = 데이터 — 여기만 수정하면 템플릿 추가
-│       └── lib/prompt.ts       # 토큰 치환·조립 규칙
-├── vault/                      # 프롬프트 지식 허브 (Obsidian)
-│   └── 00-principles/          # 프롬프트 DNA — 템플릿 작성·개정 원칙
-└── docs/DESIGN.md              # 설계 문서
+├── .claude/skills/prompt-evolve/   # ★ 진화 루프 스킬 (본체)
+├── vault/                          # 지식 허브 (Obsidian)
+│   ├── 00-principles/              # 프롬프트 DNA + 학습 인덱스 (LEARN이 갱신)
+│   ├── 10-references/              # 씨앗 10개 (export-references.mjs로 재생성)
+│   ├── 20-generations/             # 라운드별 후보·조립·결과물·점수·결정
+│   └── 30-ledger/                  # prompt-ledger.jsonl (append-only)
+├── scripts/
+│   ├── prompt-loop.mjs             # ledger/run/조립 유틸 (+ 테스트)
+│   ├── assemble-run.mjs            # 후보 × 시나리오 값 → 실행용 프롬프트
+│   └── export-references.mjs       # templates.ts → 10-references
+├── app/                            # 라이브러리 뷰어 (Next.js 16, 빌더 UI)
+│   └── src/data/templates.ts       # ★ 템플릿 라이브러리 = 데이터 (승격 대상)
+└── docs/DESIGN.md
 ```
 
-## 템플릿 추가 방법
+## 라이브러리 뷰어 실행
 
-`app/src/data/templates.ts`의 `TEMPLATES` 배열에 객체 하나를 추가하면 끝. 코드 수정 불필요.
+```bash
+cd app && npm install && npm run dev   # http://localhost:3000
+```
 
-- `template` 본문에 `{{key}}` 토큰 → `fields[]`의 `key`와 매핑
-- `optional: true` 필드가 비면 해당 줄이 결과에서 제거됨
-- `anatomy[]` (역할/맥락/요구사항/출력 형식)와 `tips[]`는 학습 패널에 표시
+빈칸 채우기 → 실시간 조립 미리보기 → 복사. 템플릿마다 "프롬프트 해부"(왜 작동하는가) 학습 패널 포함.
 
-새 템플릿은 `vault/00-principles/prompt-principles.md`의 4요소 구조를 따를 것.
+> ⚠️ 셸에 `NODE_ENV=development`가 전역 설정된 환경이라 build/start 스크립트에 `NODE_ENV=production`을 박아 두었습니다.
 
-## 현재 템플릿 (10종 / 7카테고리)
+## 현재 라이브러리 (11종 / 8카테고리)
 
-글쓰기(유튜브 스크립트·링크드인·블로그) / 이미지 생성(썸네일) / 기획(서비스 아이디어·마케팅 실험) / 요약·정리(회의록) / 분석(고객 인터뷰) / 리서치(경쟁사 조사) / 코딩(코드 리뷰)
+글쓰기(유튜브 스크립트·링크드인·블로그) / **이메일(콜드 아웃리치 ← R1 생성)** / 이미지 생성(썸네일) / 기획(서비스 아이디어·마케팅 실험) / 요약·정리(회의록) / 분석(고객 인터뷰) / 리서치(경쟁사 조사) / 코딩(코드 리뷰)
+
+## 수동으로 템플릿 추가
+
+`app/src/data/templates.ts`의 `TEMPLATES` 배열에 객체 추가 — `{{key}}` 토큰 ↔ `fields[].key` 매핑, `optional` 필드는 비우면 줄 제거. 단, 새 템플릿은 `vault/00-principles/prompt-principles.md`의 DNA를 따를 것 (루프로 만들면 자동 준수).
