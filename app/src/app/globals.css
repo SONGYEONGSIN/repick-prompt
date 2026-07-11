@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0b0b0f;
+  --fg: #ffffff;
+  --mut: #a1a1aa;
+  --acc: #6e56cf;
+  --panel: #121218;
+  --line: rgba(255, 255, 255, 0.09);
+  --warn: #e5a13a;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-mut: var(--mut);
+  --color-acc: var(--acc);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --color-warn: var(--warn);
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 다크 배경에서 기본 아웃라인이 약하므로 accent focus 링을 전역 보장 */
+:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--acc) 45%, transparent);
+}
+
+/* eyebrow / 캡션 / 스탯 — 트래킹 3단 스케일 */
+.trk-eyebrow {
+  letter-spacing: 0.28em;
+}
+.trk-caption {
+  letter-spacing: 0.16em;
+}
+.trk-stat {
+  letter-spacing: 0.12em;
+}
+
+/* ghost 넘버 — 에디토리얼 밀도용 초대형 배경 숫자 */
+.ghost-num {
+  font-weight: 800;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.14);
+  user-select: none;
+}
