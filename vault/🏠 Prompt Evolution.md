@@ -29,3 +29,4 @@ RE:PROMPT 템플릿의 **자기개선 루프** 지식 허브. 프롬프트 지�
 - [[2026-07-12-reels-script/DECISION|R4 — c (숏폼 문법 내장 3연속, 20/20)]]
 - [[2026-07-12-work-report/DECISION|R5 — c (결정 요청 상단 고정, 19/20)]]
 - [[2026-07-13-cover-letter-interview/DECISION|R6 — c (검증형 부속물 타이브레이커 5연속, 20/20)]]
+- [[2026-07-13-cs-reply/DECISION|R7 — b (결합형 첫 승, 내장 5연승 종료 — 대상 맥락 빈칸 승격, 20/20)]]
