@@ -13,7 +13,22 @@ const { TEMPLATES, categoryName } = await import(
 const outDir = join(root, 'vault/10-references');
 mkdirSync(outDir, { recursive: true });
 
-for (const t of TEMPLATES) {
+// 10-references는 씨앗 전용 — 루프 생성물(cold-email 등)은 내보내지 않는다 (prompt-evolve SKILL 금지 조항)
+const SEED_SLUGS = new Set([
+  'youtube-script',
+  'linkedin-post',
+  'blog-draft',
+  'thumbnail-image',
+  'service-idea',
+  'marketing-experiment',
+  'meeting-summary',
+  'interview-insights',
+  'competitor-research',
+  'code-review',
+]);
+
+const seeds = TEMPLATES.filter((t) => SEED_SLUGS.has(t.slug));
+for (const t of seeds) {
   const body = [
     '---',
     `tags: [reference, seed, ${t.categoryId}]`,
@@ -38,4 +53,4 @@ for (const t of TEMPLATES) {
   writeFileSync(join(outDir, `${t.slug}.prompt.md`), body);
   console.log(`✓ ${t.slug}.prompt.md`);
 }
-console.log(`\n${TEMPLATES.length}개 참조 내보내기 완료 → vault/10-references/`);
+console.log(`\n${seeds.length}개 씨앗 참조 내보내기 완료 → vault/10-references/`);
