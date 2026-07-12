@@ -24,3 +24,8 @@ RE:PROMPT 템플릿의 **자기개선 루프** 지식 허브. 프롬프트 지�
 
 ## 라운드별 결정 (진화 체인)
 - [[2026-07-12-cold-email/DECISION|R1 — b (발송 세트 완결성 승, auto)]]
+- [[2026-07-12-prototype/DECISION|R2 — c (실데이터 필수 빈칸, 20/20)]]
+- [[2026-07-12-webpage/DECISION|R3 — c (방법론은 요구사항 문장으로, 20/20)]]
+- [[2026-07-12-reels-script/DECISION|R4 — c (숏폼 문법 내장 3연속, 20/20)]]
+- [[2026-07-12-work-report/DECISION|R5 — c (결정 요청 상단 고정, 19/20)]]
+- [[2026-07-13-cover-letter-interview/DECISION|R6 — c (검증형 부속물 타이브레이커 5연속, 20/20)]]
