@@ -45,7 +45,13 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
 
 ## 5. LEARN
 
-- 승자의 "이유"에서 재사용 가능한 규칙 1개를 추출해 `prompt-principles.md`를 **surgical** 갱신 (있으면 강화, 없으면 추가, 무관 부분 불변).
+- 승자의 "이유"에서 재사용 가능한 규칙 1개를 추출한다.
+- **지식 정제 게이트**: 추출한 규칙을 기존 DNA 전체와 대조해 넷 중 하나로 판정하고, 판정과 근거 1줄을 DECISION.md에 기록한다. 가치 기준 = ① 재사용 범위(여러 카테고리 적용 여부) ② 실측 근거(심사 점수·산출물로 반증 가능했나) ③ 기존 원칙과의 중복도.
+  - **신규** — 기존 원칙이 없는 축 → `prompt-principles.md`에 추가 (surgical, 무관 부분 불변)
+  - **강화** — 같은 축·같은 방향 → 기존 원칙에 근거 라운드만 덧붙임. 새 항목 추가 금지 (유사 지식 중복 누적 방지)
+  - **충돌** — 같은 축·반대 방향 → 임의로 덮어쓰지 않고 정제 질문 생성
+  - **애매** — 판정이 서지 않음 → 정제 질문 생성
+- **정제 질문** (충돌/애매 시 필수): "기존 원칙 X ↔ 새 규칙 Y — 어느 쪽이 더 일반적으로 유효한가? 판단 기준은?" 형식. 대화 모드면 사용자에게 즉시 묻고 답을 반영한다. `--auto` 모드면 DNA를 건드리지 않고 질문을 DECISION.md와 PR 본문 `## 지식 정제 질문` 섹션에 남긴다. 사람이 답하면 **그 답의 판단 기준 자체를** 다음 원칙으로 축적한다 (정제 기준의 학습).
 - ledger append:
   `node -e "import('./scripts/prompt-loop.mjs').then(m=>m.appendLedger({run:'<run>',candidate:'<variant>',won:true,reason:'<한 줄>',metrics:{judge_rank:1,dna_violations:0,fields:0},principle_delta:'<규칙>'},'vault/30-ledger/prompt-ledger.jsonl'))"`
 - `vault/00-principles/MEMORY.md`에 한 줄 추가 (200줄 cap).
