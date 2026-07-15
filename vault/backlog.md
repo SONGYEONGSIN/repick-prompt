@@ -4,7 +4,7 @@ tags: [backlog, prompt]
 
 # 진화 백로그 — 타깃 대기열
 
-자동 라운드(`/prompt-evolve --auto`)가 소비하는 타깃 작업 대기열.
+자동 라운드(`/prompt-evolve --auto`)가 소비하는 타깃 작업 대기열 + 후보 설계 방향 가설.
 
 ## 소비 규칙
 
@@ -25,3 +25,9 @@ tags: [backlog, prompt]
 - [ ] 유저 페르소나 정의
 - [ ] 서비스 FAQ 작성
 - [ ] 보도자료 작성
+
+## 방향 가설 (GENERATE 소비)
+
+라운드의 후보 $N개 중 1개의 설계 방향으로 배정해 검증하는 가설 대기열 (라운드당 1개). 검증 완료 시 `- [x]`로 바꾸고 ` → <run-slug> (R<n>, 순위/채택 여부)`를 덧붙인다. 외부 지식은 여기서 실측을 거쳐야만 DNA에 오를 수 있다 (LEARN 게이트의 실측 근거 요건).
+
+- [ ] **요구사항에 이유 병기** — 템플릿의 요구사항 문장마다 "왜"를 붙인다 (예: "불가능한 요구에는 불가능을 명시하고 대안을 제시해주세요 — 지키지 못할 약속은 신뢰를 깨므로"). 근거: Claude 플랫폼 문서 General principles "Add context to improve performance" — 지시에 이유를 주면 모델이 명시하지 않은 유사 상황까지 일반화 ("Claude is smart enough to generalize from the explanation"). 예측: 블라인드 심사의 지시 이행도·환각 억제 항목 상승.

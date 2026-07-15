@@ -22,6 +22,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
   - a = 최소 빈칸 (필수 3~4개, 즉시 사용 최우선)
   - b = 가이드 최대화 (help/placeholder 풍부, 초보자 이탈 방지 최우선)
   - c = 프레임워크 내장 (해당 도메인의 검증된 방법론을 요구사항에 구조화)
+- **방향 가설 소비**: `vault/backlog.md`의 `## 방향 가설` 섹션에 미검증(`- [ ]`) 가설이 있으면 그중 첫 번째를 후보 1개의 설계 방향으로 배정한다 (라운드당 1개). 라운드 완료 시 해당 가설을 `- [x]`로 바꾸고 ` → <run-slug> (R<n>, 순위/채택 여부)`를 덧붙인다 — 채택이면 LEARN 게이트로, 탈락이면 기록만 남긴다.
 - 각 후보는 다음 형식의 마크다운으로 `vault/20-generations/<run>/candidates/<variant>.md`에 저장:
   - 한 줄 컨셉 + fields 표 (key/label/type/optional/help/placeholder/options)
   - `{{key}}` 토큰을 쓴 template 본문 (4요소 구조 준수)
