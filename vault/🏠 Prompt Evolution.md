@@ -31,3 +31,5 @@ RE:PROMPT 템플릿의 **자기개선 루프** 지식 허브. 프롬프트 지�
 - [[2026-07-13-cover-letter-interview/DECISION|R6 — c (검증형 부속물 타이브레이커 5연속, 20/20)]]
 - [[2026-07-13-cs-reply/DECISION|R7 — b (결합형 첫 승, 내장 5연승 종료 — 대상 맥락 빈칸 승격, 20/20)]]
 - [[2026-07-13-product-detail-page/DECISION|R8 — a (자기검증 내장 첫 도전 승 — 약점 정면 인정 승격, 20/20)]]
+- [[2026-07-15-cs-reply-reason-ab/DECISION|H1-1 — 가설 A/B: 이유 병기 vs R7 챔피언 (천장 효과 무승부)]]
+- [[2026-07-15-cold-email-reason-ab/DECISION|H1-2 — 가설 A/B 재검: 이유 병기 vs R1 챔피언 (승격, v1.8 + 18종 소급)]]
