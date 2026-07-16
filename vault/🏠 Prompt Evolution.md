@@ -32,6 +32,7 @@ RE:PROMPT 템플릿의 **자기개선 루프** 지식 허브. 프롬프트 지�
 - [[2026-07-13-cs-reply/DECISION|R7 — b (결합형 첫 승, 내장 5연승 종료 — 대상 맥락 빈칸 승격, 20/20)]]
 - [[2026-07-13-product-detail-page/DECISION|R8 — a (자기검증 내장 첫 도전 승 — 약점 정면 인정 승격, 20/20)]]
 - [[2026-07-14-resume/DECISION|R9 — b (raw에 없는 세부 창작 금지 승격 — [확인 필요] 정직성 승, 17/20, auto)]]
+- [[2026-07-17-process-judgment/DECISION|R11 — a (결합형 4승 — 행동 착지 강화: 하지 말 것, 라틴 방진 만장일치 57.5/60)]]
 - [[2026-07-15-cs-reply-reason-ab/DECISION|H1-1 — 가설 A/B: 이유 병기 vs R7 챔피언 (천장 효과 무승부)]]
 - [[2026-07-16-portfolio-onepage/DECISION|R10 — b (결합형 3승째 — 발송물 정련 강화: 인용 화법, 38/40)]]
 - [[2026-07-15-cold-email-reason-ab/DECISION|H1-2 — 가설 A/B 재검: 이유 병기 vs R1 챔피언 (승격, v1.8 + 18종 소급)]]
