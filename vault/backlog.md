@@ -4,7 +4,7 @@ tags: [backlog, prompt]
 
 # 진화 백로그 — 타깃 대기열
 
-자동 라운드(`/prompt-evolve --auto`)가 소비하는 타깃 작업 대기열.
+자동 라운드(`/prompt-evolve --auto`)가 소비하는 타깃 작업 대기열 + 후보 설계 방향 가설.
 
 ## 소비 규칙
 
@@ -25,3 +25,11 @@ tags: [backlog, prompt]
 - [ ] 유저 페르소나 정의
 - [ ] 서비스 FAQ 작성
 - [ ] 보도자료 작성
+
+## 방향 가설 (GENERATE 소비)
+
+라운드의 후보 $N개 중 1개의 설계 방향으로 배정해 검증하는 가설 대기열 (라운드당 1개). 검증 완료 시 `- [x]`로 바꾸고 ` → <run-slug> (R<n>, 순위/채택 여부)`를 덧붙인다. 외부 지식은 여기서 실측을 거쳐야만 DNA에 오를 수 있다 (LEARN 게이트의 실측 근거 요건).
+
+- [x] **요구사항에 이유 병기** — 템플릿의 요구사항 문장마다 "왜"를 붙인다. 근거: Claude 플랫폼 문서 General principles "Add context to improve performance". → 2026-07-15-cold-email-reason-ab (승격, DNA v1.8 + 라이브러리 18종 소급)
+  - 1차 검증: [[2026-07-15-cs-reply-reason-ab/DECISION|R7 챔피언 A/B]] — 무승부(39 vs 38, 교차 불일치)로 판정 불충분 (천장 효과: 대조군에 이미 이유 존재). 정성 신호 2건은 가설 지지.
+  - 재검: [[2026-07-15-cold-email-reason-ab/DECISION|R1 챔피언 A/B]] — 보정 후 근소 우세 + 설득 핵심 3차원 교차 일치 + 기제 신호 누적 5건 → 휴먼 게이트 승인, 승격.

@@ -22,6 +22,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
   - a = 최소 빈칸 (필수 3~4개, 즉시 사용 최우선)
   - b = 가이드 최대화 (help/placeholder 풍부, 초보자 이탈 방지 최우선)
   - c = 프레임워크 내장 (해당 도메인의 검증된 방법론을 요구사항에 구조화)
+- **방향 가설 소비**: `vault/backlog.md`의 `## 방향 가설` 섹션에 미검증(`- [ ]`) 가설이 있으면 그중 첫 번째를 후보 1개의 설계 방향으로 배정한다 (라운드당 1개). 라운드 완료 시 해당 가설을 `- [x]`로 바꾸고 ` → <run-slug> (R<n>, 순위/채택 여부)`를 덧붙인다 — 채택이면 LEARN 게이트로, 탈락이면 기록만 남긴다.
 - 각 후보는 다음 형식의 마크다운으로 `vault/20-generations/<run>/candidates/<variant>.md`에 저장:
   - 한 줄 컨셉 + fields 표 (key/label/type/optional/help/placeholder/options)
   - `{{key}}` 토큰을 쓴 template 본문 (4요소 구조 준수)
@@ -45,7 +46,14 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
 
 ## 5. LEARN
 
-- 승자의 "이유"에서 재사용 가능한 규칙 1개를 추출해 `prompt-principles.md`를 **surgical** 갱신 (있으면 강화, 없으면 추가, 무관 부분 불변).
+- 승자의 "이유"에서 재사용 가능한 규칙 1개를 추출한다.
+- **지식 정제 게이트**: 추출한 규칙을 기존 DNA 전체와 대조해 넷 중 하나로 판정하고, 판정과 근거 1줄을 DECISION.md에 기록한다. 가치 기준 = ① 재사용 범위(여러 카테고리 적용 여부) ② 실측 근거(심사 점수·산출물로 반증 가능했나) ③ 기존 원칙과의 중복도.
+  - **신규** — 기존 원칙이 없는 축 → `prompt-principles.md`에 추가 (surgical, 무관 부분 불변)
+  - **강화** — 같은 축·같은 방향 → 기존 원칙에 근거 라운드만 덧붙임. 새 항목 추가 금지 (유사 지식 중복 누적 방지)
+  - **충돌** — 같은 축·반대 방향 → 임의로 덮어쓰지 않고 정제 질문 생성
+  - **애매** — 판정이 서지 않음 → 정제 질문 생성
+- **근거 인용 형식**: `prompt-principles.md`에 라운드 근거를 쓸 때는 플레인 텍스트 `(R9: …)`가 아니라 `([[<라운드 폴더명>/DECISION|R<N>]]: 근거 한 줄)` 위키링크로 쓴다 — 홈 노트와 동일 형식, 옵시디언 그래프/백링크에 원칙→라운드 연결이 보이게.
+- **정제 질문** (충돌/애매 시 필수): "기존 원칙 X ↔ 새 규칙 Y — 어느 쪽이 더 일반적으로 유효한가? 판단 기준은?" 형식. 대화 모드면 사용자에게 즉시 묻고 답을 반영한다. `--auto` 모드면 DNA를 건드리지 않고 질문을 DECISION.md와 PR 본문 `## 지식 정제 질문` 섹션에 남긴다. 사람이 답하면 **그 답의 판단 기준 자체를** 다음 원칙으로 축적한다 (정제 기준의 학습).
 - ledger append:
   `node -e "import('./scripts/prompt-loop.mjs').then(m=>m.appendLedger({run:'<run>',candidate:'<variant>',won:true,reason:'<한 줄>',metrics:{judge_rank:1,dna_violations:0,fields:0},principle_delta:'<규칙>'},'vault/30-ledger/prompt-ledger.jsonl'))"`
 - `vault/00-principles/MEMORY.md`에 한 줄 추가 (200줄 cap).
