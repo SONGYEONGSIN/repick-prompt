@@ -38,3 +38,4 @@ RE:PROMPT 템플릿의 **자기개선 루프** 지식 허브. 프롬프트 지�
 - [[2026-07-15-cs-reply-reason-ab/DECISION|H1-1 — 가설 A/B: 이유 병기 vs R7 챔피언 (천장 효과 무승부)]]
 - [[2026-07-16-portfolio-onepage/DECISION|R10 — b (결합형 3승째 — 발송물 정련 강화: 인용 화법, 38/40)]]
 - [[2026-07-15-cold-email-reason-ab/DECISION|H1-2 — 가설 A/B 재검: 이유 병기 vs R1 챔피언 (승격, v1.8 + 18종 소급)]]
+- [[2026-07-18-interview-qa-prep/DECISION|R14 — b (압박질문 정면 대응 — raw 미확정 지점 질문화 신규 승격, 라틴 방진 만장일치 56/60)]]
