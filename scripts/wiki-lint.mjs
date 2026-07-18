@@ -65,6 +65,13 @@ if (memLines > 200) fails.push(`MEMORY.md ${memLines}줄 — 200줄 cap 초과`)
 
 // 5. DNA 플레인 인용 잔존 (위키링크 규칙 위반)
 const dna = readFileSync(join(VAULT, '00-principles/prompt-principles.md'), 'utf8');
+
+// 5b. DNA 비대 임계 — 200줄 근접 시 two-tier(요약 DNA + 원칙별 entity 페이지) 전환 검토
+const dnaLines = dna.split('\n').length;
+if (dnaLines >= 200)
+  fails.push(`DNA ${dnaLines}줄 — 200줄 도달: two-tier 전환 실행 (요약 DNA 유지 + 원칙별 상세 페이지 분리)`);
+else if (dnaLines >= 170)
+  warns.push(`DNA ${dnaLines}줄 — 200줄 임계 근접 (170+): two-tier 전환 준비 검토`);
 for (const [i, line] of dna.split('\n').entries()) {
   if (/^##? /.test(line) || line.startsWith('- v1')) continue; // 개정 이력 제외
   if (/[(（/ ]R\d+(-[a-z])?[:~ )]/.test(line) && !/\[\[[^\]]*\|R\d+/.test(line))
