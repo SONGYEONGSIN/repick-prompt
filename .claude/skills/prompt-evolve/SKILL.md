@@ -18,6 +18,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
 
 ## 2. GENERATE
 
+- **도메인 본질 질의 (named query)**: 방향 풀 설계 전에 `vault/40-queries/domain-fit.md`의 질의를 수행하고 답변을 run 폴더 `DOMAIN.md`로 저장한다 — 방향 풀은 도메인의 본질 리스크·본질 루프에서 도출한다 (R12: 측정 본질 도메인에서 결합형 연승 종료). 라운드 종료 시 예측-실제 대조 1줄을 DECISION.md에 남긴다.
 - 에이전트를 $N회 **병렬** 호출 (`general-purpose` 또는 `developer`). 각 호출에 RETRIEVE 컨텍스트(DNA 전문 + 참조 + 최근 결정)를 전달하고 **서로 다른 설계 방향**을 지시. 예:
   - a = 최소 빈칸 (필수 3~4개, 즉시 사용 최우선)
   - b = 가이드 최대화 (help/placeholder 풍부, 초보자 이탈 방지 최우선)
@@ -61,7 +62,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
 - `vault/00-principles/MEMORY.md`에 한 줄 추가 (200줄 cap).
 - **승자를 라이브러리에 승격**: `app/src/data/templates.ts`의 `TEMPLATES`에 추가 (candidates/<variant>.md의 fields/template/anatomy/tips 그대로). 필요 시 `CATEGORIES`에 새 카테고리 추가.
 - `node --experimental-strip-types scripts/export-references.mjs`… 는 실행하지 않는다 — 10-references는 외부 씨앗 전용, 생성물은 20-generations와 라이브러리에 남는다.
-- 검증: `cd app && npm run lint && npm run build` 통과 확인.
+- 검증: `cd app && npm run lint && npm run build` 통과 확인 + **`node scripts/wiki-lint.mjs` 통과 확인** (깨진 위키링크·홈 체인 누락·ledger↔DECISION 정합·MEMORY cap — 볼트 지식 위생, Karpathy LLM wiki lint 패턴).
 - 완료 요약 보고: 무엇이 이겼는지, 결과물이 어땠는지, 원칙이 어떻게 바뀌었는지, 라이브러리 몇 종이 되었는지.
 
 ## 금지

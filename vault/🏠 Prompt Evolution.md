@@ -21,6 +21,7 @@ RE:PROMPT 템플릿의 **자기개선 루프** 지식 허브. 프롬프트 지�
 - `10-references/` — 씨앗 (검증된 프롬프트 10개, `scripts/export-references.mjs`로 재생성)
 - `20-generations/` — 라운드별 후보·결과물·점수·결정
 - `30-ledger/` — 결정 로그 `prompt-ledger.jsonl` (append-only, 반증용)
+- `40-queries/` — named query 템플릿 (질의 결과는 위키에 축적 — Karpathy LLM wiki 패턴)
 
 ## 라운드별 결정 (진화 체인)
 - [[2026-07-12-cold-email/DECISION|R1 — b (발송 세트 완결성 승, auto)]]

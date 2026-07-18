@@ -1,0 +1,87 @@
+// wiki-lint — 볼트 지식 위생 검사 (Karpathy LLM wiki 패턴의 lint 작업 채택)
+// 검사: 깨진 위키링크 / 홈 체인 누락 라운드 / ledger↔DECISION 정합 /
+//       MEMORY 200줄 cap / DNA 플레인 인용 잔존 / 미완결 라운드(경고)
+// 사용: node scripts/wiki-lint.mjs  (실패 시 exit 1)
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { join, basename } from 'node:path';
+
+const VAULT = 'vault';
+const fails = [];
+const warns = [];
+
+function mdFiles(dir) {
+  const out = [];
+  for (const e of readdirSync(dir)) {
+    const p = join(dir, e);
+    if (statSync(p).isDirectory()) out.push(...mdFiles(p));
+    else if (e.endsWith('.md')) out.push(p);
+  }
+  return out;
+}
+const files = mdFiles(VAULT);
+const byBase = new Map();
+for (const f of files) {
+  const b = basename(f, '.md');
+  if (!byBase.has(b)) byBase.set(b, []);
+  byBase.get(b).push(f);
+}
+
+// 1. 깨진 위키링크
+for (const f of files) {
+  const src = readFileSync(f, 'utf8');
+  for (const m of src.matchAll(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]/g)) {
+    const target = m[1].trim();
+    const candidates = target.includes('/')
+      ? [join(VAULT, target + '.md'), join(VAULT, '20-generations', target + '.md')]
+      : [join(VAULT, target + '.md')];
+    const resolved =
+      candidates.some(existsSync) || (!target.includes('/') && byBase.has(target));
+    if (!resolved) fails.push(`깨진 링크 [[${target}]] in ${f}`);
+  }
+}
+
+// 2. 홈 체인: 모든 라운드 폴더가 결정 체인에 존재
+const home = readFileSync(join(VAULT, '🏠 Prompt Evolution.md'), 'utf8');
+const runDirs = readdirSync(join(VAULT, '20-generations')).filter((d) =>
+  statSync(join(VAULT, '20-generations', d)).isDirectory()
+);
+for (const d of runDirs) {
+  if (!home.includes(`[[${d}/DECISION`)) fails.push(`홈 결정 체인 누락: ${d}`);
+}
+
+// 3. ledger ↔ DECISION 정합
+const ledger = readFileSync(join(VAULT, '30-ledger/prompt-ledger.jsonl'), 'utf8')
+  .split('\n')
+  .filter(Boolean)
+  .map((l) => JSON.parse(l));
+for (const e of ledger) {
+  if (!existsSync(join(VAULT, '20-generations', e.run, 'DECISION.md')))
+    fails.push(`ledger run에 DECISION 없음: ${e.run}`);
+}
+
+// 4. MEMORY 200줄 cap
+const memLines = readFileSync(join(VAULT, '00-principles/MEMORY.md'), 'utf8').split('\n').length;
+if (memLines > 200) fails.push(`MEMORY.md ${memLines}줄 — 200줄 cap 초과`);
+
+// 5. DNA 플레인 인용 잔존 (위키링크 규칙 위반)
+const dna = readFileSync(join(VAULT, '00-principles/prompt-principles.md'), 'utf8');
+for (const [i, line] of dna.split('\n').entries()) {
+  if (/^##? /.test(line) || line.startsWith('- v1')) continue; // 개정 이력 제외
+  if (/[(（/ ]R\d+(-[a-z])?[:~ )]/.test(line) && !/\[\[[^\]]*\|R\d+/.test(line))
+    warns.push(`DNA 플레인 인용 의심 (line ${i + 1}): ${line.slice(0, 40)}…`);
+}
+
+// 6. 미완결 라운드 (경고): SCORES 또는 DECISION 없는 run 폴더
+for (const d of runDirs) {
+  for (const need of ['SCORES.md', 'DECISION.md']) {
+    if (!existsSync(join(VAULT, '20-generations', d, need)))
+      warns.push(`미완결 라운드: ${d} — ${need} 없음`);
+  }
+}
+
+for (const w of warns) console.log('WARN', w);
+for (const f of fails) console.log('FAIL', f);
+console.log(
+  `\nwiki-lint: ${files.length} files, ${runDirs.length} runs — ${fails.length} fail, ${warns.length} warn`
+);
+process.exit(fails.length ? 1 : 0);
