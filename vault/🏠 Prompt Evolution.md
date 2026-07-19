@@ -39,3 +39,4 @@ RE:PROMPT 템플릿의 **자기개선 루프** 지식 허브. 프롬프트 지�
 - [[2026-07-16-portfolio-onepage/DECISION|R10 — b (결합형 3승째 — 발송물 정련 강화: 인용 화법, 38/40)]]
 - [[2026-07-15-cold-email-reason-ab/DECISION|H1-2 — 가설 A/B 재검: 이유 병기 vs R1 챔피언 (승격, v1.8 + 18종 소급)]]
 - [[2026-07-18-interview-qa-prep/DECISION|R14 — b (압박질문 정면 대응 — raw 미확정 지점 질문화 신규 승격, 라틴 방진 만장일치 56/60)]]
+- [[2026-07-19-business-email-reply/DECISION|R15 — b (전항목 커버리지 강제 — 다목적 원문 완전성 자기점검, 라틴 방진 만장일치 106/120, 애매 판정으로 DNA 미변경·정제 질문)]]
