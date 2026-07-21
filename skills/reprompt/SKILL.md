@@ -6,12 +6,12 @@ description: 대화 맥락을 DNA 기준으로 맞춤 프롬프트로 깎아 파
 # reprompt — 메타프롬프팅 6단계 루프
 
 인자: `$TASK`(생략 시 대화에서 추론), `--target`(general|coding|image|research, 생략 시 자동 감지), `--auto`(HUMAN GATE 생략), `--out <dir>`(기본 `.reprompt/`).
-helper: 이 스킬 폴더의 `scripts/reprompt-init.mjs`. DNA: 이 폴더의 `dna/prompt-principles.md`(번들). **단 현재 레포에 `vault/00-principles/prompt-principles.md`가 있으면 그쪽(최신)을 우선 읽는다.**
+helper: 스킬 폴더(`$CLAUDE_SKILL_DIR`, 없으면 스킬 로드 시 주입된 "Base directory for this skill" 절대경로)의 `scripts/reprompt-init.mjs`. DNA: 같은 폴더의 `dna/prompt-principles.md`(번들). **단 현재 레포에 `vault/00-principles/prompt-principles.md`가 있으면 그쪽(최신)을 우선 읽는다.**
 
 ## 0. 컨텍스트 덤핑
 
 - 현재 대화 + `$TASK` + (레포 내면) 관련 파일에서 다음을 뽑아 **의도 브리프**로 정리한다: 목표 / 대상 / 제약 / 보유 실데이터·자료.
-- DNA를 읽는다: `vault/00-principles/prompt-principles.md`가 있으면 그것을, 없으면 번들 `dna/prompt-principles.md`를. 읽은 DNA 버전(제목의 vX.Y)을 기억한다.
+- DNA를 읽는다: `vault/00-principles/prompt-principles.md`가 있으면 그것을, 없으면 번들 `$CLAUDE_SKILL_DIR/dna/prompt-principles.md`(env 없으면 주입된 Base directory의 `dna/prompt-principles.md`)를. 읽은 DNA 버전(제목의 vX.Y)을 기억한다.
 - 참조 앵커: 레포에 `app/src/data/templates.ts` 또는 `vault/10-references/`가 있으면 `$TASK`와 가장 가까운 것 1~3개를 참조로 훑는다(복제 아님, 구조 참고만).
 
 ## 1. 질문 유도
@@ -50,12 +50,14 @@ DNA 4요소 뼈대로 조립한다. PROMPT.md는 아래 4개 섹션을 반드시
 ## 3. 폴더 생성 + 산출 파일 기록
 
 - 오늘 날짜와 ISO 타임스탬프를 얻는다: `date '+%Y-%m-%d'`, `date -u '+%Y-%m-%dT%H:%M:%SZ'`.
-- helper로 폴더와 meta.json을 만든다(경로는 이 스킬 폴더 기준으로 해석):
+- helper로 폴더와 meta.json을 만든다. 스킬 폴더 경로는 `$CLAUDE_SKILL_DIR`(설치된 플러그인) 또는 스킬 로드 시 주입된 "Base directory for this skill"(project skill)에서 얻는다:
 
 - Windows에서 `import()`는 절대경로 대신 `file://` URL을 요구하므로 스킬 폴더 경로를 `pathToFileURL`로 변환해 넘긴다.
 
 ```bash
-node -e "import(require('url').pathToFileURL(process.argv[1]).href).then(m=>{const r=m.initRun({task:process.argv[2],target:process.argv[3],dnaVersion:process.argv[4],createdAt:process.argv[5],dateStr:process.argv[6],outBase:process.argv[7]});console.log(JSON.stringify(r));})" "<이 스킬 폴더>/scripts/reprompt-init.mjs" "<task>" "<target>" "<vX.Y>" "<isoTime>" "<YYYY-MM-DD>" "<outBase 또는 .reprompt>"
+# SKILL_DIR: 플러그인 설치 시 $CLAUDE_SKILL_DIR, 없으면 이 SKILL.md의 Base directory 절대경로로 치환
+SKILL_DIR="${CLAUDE_SKILL_DIR:-<이 SKILL.md의 Base directory 절대경로>}"
+node -e "import(require('url').pathToFileURL(process.argv[1]).href).then(m=>{const r=m.initRun({task:process.argv[2],target:process.argv[3],dnaVersion:process.argv[4],createdAt:process.argv[5],dateStr:process.argv[6],outBase:process.argv[7]});console.log(JSON.stringify(r));})" "$SKILL_DIR/scripts/reprompt-init.mjs" "<task>" "<target>" "<vX.Y>" "<isoTime>" "<YYYY-MM-DD>" "<outBase 또는 .reprompt>"
 ```
 
 - 반환된 `runDir`에 다음을 쓴다:
