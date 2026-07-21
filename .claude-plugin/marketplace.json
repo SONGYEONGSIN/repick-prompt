@@ -1,5 +1,6 @@
 {
   "name": "repick-prompt",
+  "description": "RE:PROMPT 마켓플레이스 — 메타프롬프팅 reprompt 플러그인 배포",
   "owner": { "name": "SONGYEONGSIN" },
   "plugins": [
     {

@@ -13,7 +13,7 @@
 - 플러그인은 `reprompt` 스킬만 배포. `prompt-evolve`는 `.claude/skills/prompt-evolve/`에 그대로(미포함).
 - 스킬 위치: 플러그인 루트의 `skills/reprompt/` (폴더명=스킬명).
 - `.claude-plugin/plugin.json` 필수 필드 `name`; **스키마 외 추가 필드 금지**.
-- `.claude-plugin/marketplace.json` 필수: `name`(kebab), `owner.maintainer`, `plugins:[{name, source}]`; `source: "./"`.
+- `.claude-plugin/marketplace.json` 필수: `name`(kebab), `owner.name`, `plugins:[{name, source}]`; `source: "./"`.
 - 번들 스크립트/DNA는 `$CLAUDE_SKILL_DIR`로 참조(없으면 주입된 "Base directory for this skill" 폴백). `../` 외부 참조 금지.
 - Windows `import()` file:// URL 변환(`pathToFileURL`, 스코프 A) 유지.
 - `claude plugin validate .` 통과가 배포 게이트.
@@ -163,7 +163,7 @@ Create `.claude-plugin/marketplace.json`:
 ```json
 {
   "name": "repick-prompt",
-  "owner": { "maintainer": "SONGYEONGSIN" },
+  "owner": { "name": "SONGYEONGSIN" },
   "plugins": [
     {
       "name": "reprompt",

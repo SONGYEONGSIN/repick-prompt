@@ -1,6 +1,6 @@
 ---
 name: reprompt
-description: 대화 맥락을 DNA 기준으로 맞춤 프롬프트로 깎아 파일로 산출하고 실행·점검하는 메타프롬프팅 루프. "이 대화로 프롬프트 만들어줘", "메타프롬프팅", "맞춤 프롬프트 깎아줘", "/reprompt" 시 사용. 인자: 작업(생략 시 대화에서 추론), --target general|coding|image|research, --auto(게이트 생략), --out <dir>.
+description: '대화 맥락을 DNA 기준으로 맞춤 프롬프트로 깎아 파일로 산출하고 실행·점검하는 메타프롬프팅 루프. "이 대화로 프롬프트 만들어줘", "메타프롬프팅", "맞춤 프롬프트 깎아줘", "/reprompt" 시 사용. 인자: 작업(생략 시 대화에서 추론), --target general|coding|image|research, --auto(게이트 생략), --out <dir>.'
 ---
 
 # reprompt — 메타프롬프팅 6단계 루프

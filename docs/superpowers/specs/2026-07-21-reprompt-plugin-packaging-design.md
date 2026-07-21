@@ -57,7 +57,7 @@ repo-root/                        ← 플러그인 루트 = 레포 루트
 ```json
 {
   "name": "repick-prompt",
-  "owner": { "maintainer": "SONGYEONGSIN" },
+  "owner": { "name": "SONGYEONGSIN" },
   "plugins": [
     { "name": "reprompt", "source": "./", "category": "productivity", "description": "메타프롬프팅 6단계 루프" }
   ]
