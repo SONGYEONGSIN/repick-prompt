@@ -52,8 +52,10 @@ DNA 4요소 뼈대로 조립한다. PROMPT.md는 아래 4개 섹션을 반드시
 - 오늘 날짜와 ISO 타임스탬프를 얻는다: `date '+%Y-%m-%d'`, `date -u '+%Y-%m-%dT%H:%M:%SZ'`.
 - helper로 폴더와 meta.json을 만든다(경로는 이 스킬 폴더 기준으로 해석):
 
+- Windows에서 `import()`는 절대경로 대신 `file://` URL을 요구하므로 스킬 폴더 경로를 `pathToFileURL`로 변환해 넘긴다.
+
 ```bash
-node -e "import('<이 스킬 폴더>/scripts/reprompt-init.mjs').then(m=>{const r=m.initRun({task:process.argv[1],target:process.argv[2],dnaVersion:process.argv[3],createdAt:process.argv[4],dateStr:process.argv[5],outBase:process.argv[6]});console.log(JSON.stringify(r));})" "<task>" "<target>" "<vX.Y>" "<isoTime>" "<YYYY-MM-DD>" "<outBase 또는 .reprompt>"
+node -e "import(require('url').pathToFileURL(process.argv[1]).href).then(m=>{const r=m.initRun({task:process.argv[2],target:process.argv[3],dnaVersion:process.argv[4],createdAt:process.argv[5],dateStr:process.argv[6],outBase:process.argv[7]});console.log(JSON.stringify(r));})" "<이 스킬 폴더>/scripts/reprompt-init.mjs" "<task>" "<target>" "<vX.Y>" "<isoTime>" "<YYYY-MM-DD>" "<outBase 또는 .reprompt>"
 ```
 
 - 반환된 `runDir`에 다음을 쓴다:
@@ -64,7 +66,7 @@ node -e "import('<이 스킬 폴더>/scripts/reprompt-init.mjs').then(m=>{const 
 
 ## 4. HUMAN GATE
 
-- `--auto`가 아니면: PROMPT.md 요약 + "왜 이렇게 깎았나"(RATIONALE 요약) + 세운 가정을 사용자에게 제시하고 **승인/수정/거부**를 받는다(응답 없이 진행 금지). 수정 요청이면 2단계로 돌아가 반영.
+- `--auto`가 아니면: PROMPT.md 요약 + "왜 이렇게 깎았나"(RATIONALE 요약) + 세운 가정을 사용자에게 제시하고 **승인/수정/거부**를 받는다(응답 없이 진행 금지). 수정 요청이면 2단계로 돌아가 반영하고, 3단계로 다시 내려와 BRIEF/PROMPT/RATIONALE 파일을 갱신한다(디스크에 이전 버전이 남지 않게).
 - `--auto`면: 자동 승인하고, 완료 보고에서 사용자가 뒤집을 수 있음을 명시.
 
 ## 5. 실행 + 점검
