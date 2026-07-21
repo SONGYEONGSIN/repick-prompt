@@ -2,7 +2,7 @@
 tags: [generation, prompt, decision]
 ---
 
-# DECISION — 비즈니스 이메일 회신 작성 (R15)
+# DECISION — 비즈니스 이메일 회신 작성 (R16)
 
 ## 승자
 
