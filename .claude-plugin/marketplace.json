@@ -5,7 +5,7 @@
   "plugins": [
     {
       "name": "reprompt",
-      "source": "./",
+      "source": "./plugin",
       "category": "productivity",
       "description": "메타프롬프팅 6단계 루프"
     }
