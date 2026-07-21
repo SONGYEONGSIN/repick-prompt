@@ -1,0 +1,12 @@
+{
+  "name": "repick-prompt",
+  "owner": { "name": "SONGYEONGSIN" },
+  "plugins": [
+    {
+      "name": "reprompt",
+      "source": "./",
+      "category": "productivity",
+      "description": "메타프롬프팅 6단계 루프"
+    }
+  ]
+}
