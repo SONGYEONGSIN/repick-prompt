@@ -25,6 +25,10 @@ test('slugify는 빈 문자열이면 throw한다', () => {
   assert.throws(() => slugify('   '), /비어 있지 않은/);
 });
 
+test('slugify는 금지문자만 있으면 throw한다', () => {
+  assert.throws(() => slugify('///'), /비었/);
+});
+
 test('initRun은 폴더와 meta.json을 만들고 경로를 반환한다', () => {
   const dir = mkdtempSync(join(tmpdir(), 'reprompt-'));
   const r = initRun({
@@ -70,4 +74,8 @@ test('initRun은 입력 객체를 변형하지 않는다', () => {
 
 test('TARGETS는 4종 타깃을 담는다', () => {
   assert.deepEqual(TARGETS, ['general', 'coding', 'image', 'research']);
+});
+
+test('FILE_NAMES는 산출 파일 5종을 정확한 순서로 담는다', () => {
+  assert.deepEqual(FILE_NAMES, ['BRIEF.md', 'PROMPT.md', 'RATIONALE.md', 'OUTPUT.md', 'INSPECTION.md']);
 });

@@ -15,7 +15,11 @@ export function slugify(text) {
     .replaceAll(/[<>:"/\\|?*\s]/g, '-') // 파일시스템 금지문자·공백 → 하이픈
     .replaceAll(/-+/g, '-')
     .slice(0, 60);
-  return base.replaceAll(/^-+|-+$/g, '');
+  const slug = base.replaceAll(/^-+|-+$/g, '');
+  if (!slug) {
+    throw new Error('slugify: slug이 비었습니다 (모두 금지문자)');
+  }
+  return slug;
 }
 
 /**
