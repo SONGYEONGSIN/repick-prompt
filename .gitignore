@@ -1,4 +1,5 @@
 .DS_Store
 .claude/scheduled_tasks.lock
 .claude/events.jsonl
+.claude/settings.local.json
 .reprompt/
