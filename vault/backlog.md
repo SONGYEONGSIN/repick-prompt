@@ -20,7 +20,7 @@ tags: [backlog, prompt]
 - [x] 면접 예상 질문과 답변 준비 → 2026-07-18-interview-qa-prep (R14)
 - [x] 비즈니스 이메일 회신 작성 → 2026-07-19-business-email-reply (R16)
 - [x] 발표 자료 개요와 스크립트 작성 → 2026-07-21-presentation-script (R17)
-- [ ] 뉴스레터 작성
+- [x] 뉴스레터 작성 → 2026-07-23-newsletter (R18)
 - [ ] 사업 제안서 작성
 - [ ] SNS 광고 카피 작성
 - [ ] 유저 페르소나 정의
