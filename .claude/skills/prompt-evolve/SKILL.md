@@ -60,6 +60,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
 - ledger append:
   `node -e "import('./scripts/prompt-loop.mjs').then(m=>m.appendLedger({run:'<run>',candidate:'<variant>',won:true,reason:'<한 줄>',metrics:{judge_rank:1,dna_violations:0,fields:0},principle_delta:'<규칙>'},'vault/30-ledger/prompt-ledger.jsonl'))"`
 - `vault/00-principles/MEMORY.md`에 한 줄 추가 (200줄 cap).
+- **DNA를 갱신했으면 플러그인 폴백본도 동기화**: `cp vault/00-principles/prompt-principles.md plugin/skills/reprompt/dna/prompt-principles.md` — 플러그인은 레포 안에선 vault DNA(최신)를 우선 읽지만, 스탠드얼론 설치 시 이 번들이 폴백이므로 방치하면 낡은 원칙이 배포된다 (R17에서 v1.15 갱신 시 미동기화로 v1.14 잔존).
 - **승자를 라이브러리에 승격**: `app/src/data/templates.ts`의 `TEMPLATES`에 추가 (candidates/<variant>.md의 fields/template/anatomy/tips 그대로). 필요 시 `CATEGORIES`에 새 카테고리 추가.
 - `node --experimental-strip-types scripts/export-references.mjs`… 는 실행하지 않는다 — 10-references는 외부 씨앗 전용, 생성물은 20-generations와 라이브러리에 남는다.
 - 검증: `cd app && npm run lint && npm run build` 통과 확인 + **`node scripts/wiki-lint.mjs` 통과 확인** (깨진 위키링크·홈 체인 누락·ledger↔DECISION 정합·MEMORY cap — 볼트 지식 위생, Karpathy LLM wiki lint 패턴).

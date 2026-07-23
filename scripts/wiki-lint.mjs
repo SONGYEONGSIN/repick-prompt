@@ -66,6 +66,19 @@ if (memLines > 200) fails.push(`MEMORY.md ${memLines}줄 — 200줄 cap 초과`)
 // 5. DNA 플레인 인용 잔존 (위키링크 규칙 위반)
 const dna = readFileSync(join(VAULT, '00-principles/prompt-principles.md'), 'utf8');
 
+// 5a. 플러그인 폴백 DNA 드리프트 (vault DNA ↔ plugin 번들본) — WARN
+const pluginDnaPath = 'plugin/skills/reprompt/dna/prompt-principles.md';
+if (existsSync(pluginDnaPath)) {
+  const pluginDna = readFileSync(pluginDnaPath, 'utf8');
+  if (pluginDna !== dna) {
+    const vaultVer = dna.match(/DNA \((v[\d.]+)\)/)?.[1] ?? '?';
+    const pluginVer = pluginDna.match(/DNA \((v[\d.]+)\)/)?.[1] ?? '?';
+    warns.push(
+      `플러그인 폴백 DNA 드리프트: vault ${vaultVer} ≠ plugin ${pluginVer} — cp vault/00-principles/prompt-principles.md ${pluginDnaPath}`
+    );
+  }
+}
+
 // 5b. DNA 비대 임계 — 200줄 근접 시 two-tier(요약 DNA + 원칙별 entity 페이지) 전환 검토
 const dnaLines = dna.split('\n').length;
 if (dnaLines >= 200)
