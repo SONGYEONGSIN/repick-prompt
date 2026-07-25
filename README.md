@@ -41,7 +41,7 @@ repick-prompt/
 ├── scripts/
 │   ├── prompt-loop.mjs             # ledger/run/조립 유틸 (+ 테스트)
 │   ├── assemble-run.mjs            # 후보 × 시나리오 값 → 실행용 프롬프트
-│   └── export-references.mjs       # templates.ts → 10-references
+│   └── export-references.mjs       # 50-library → 10-references
 ├── app/                            # 라이브러리 뷰어 (Next.js 16, 빌더 UI)
 └── docs/DESIGN.md
 ```

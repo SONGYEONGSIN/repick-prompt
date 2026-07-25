@@ -1,6 +1,6 @@
-// 라이브러리(templates.ts)의 씨앗 프롬프트를 vault/10-references/ 참조 파일로 내보낸다.
+// 라이브러리(vault/50-library)의 씨앗 프롬프트를 vault/10-references/ 참조 파일로 내보낸다.
 // 단일 소스는 vault/50-library — 이 스크립트는 언제든 재생성 가능하다.
-// 실행: node --experimental-strip-types scripts/export-references.mjs
+// 실행: node scripts/export-references.mjs
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
