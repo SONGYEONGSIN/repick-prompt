@@ -111,24 +111,22 @@ test('생성된 TS에 경고 주석과 두 export가 들어간다', () => {
   assert.match(ts, /from "\.\/templates\.types"/);
 });
 
-test('파일 쓰기 순서 무관 결정론적 직렬화 (정렬 확인)', () => {
-  // Create files in reverse alphabetical order to verify .sort() is applied
+test('출력 순서는 파일명 아닌 order 필드를 따른다', () => {
+  // Invariant: emitted order follows order field, not alphabetical filenames
+  // Create: alpha (order 3), mike (order 1), zebra (order 2)
+  // Expect output: mike, zebra, alpha — NOT alphabetical
   const dir = mkdtempSync(join(tmpdir(), 'lib-'));
   writeFileSync(join(dir, '_categories.md'), serializeCategoriesMd([{ id: 'writing', name: '글쓰기' }]));
-  writeFileSync(join(dir, 'zebra.md'), serializeTemplateMd(makeTemplate('zebra', 'writing', 1)));
-  writeFileSync(join(dir, 'mike.md'), serializeTemplateMd(makeTemplate('mike', 'writing', 2)));
   writeFileSync(join(dir, 'alpha.md'), serializeTemplateMd(makeTemplate('alpha', 'writing', 3)));
+  writeFileSync(join(dir, 'mike.md'), serializeTemplateMd(makeTemplate('mike', 'writing', 1)));
+  writeFileSync(join(dir, 'zebra.md'), serializeTemplateMd(makeTemplate('zebra', 'writing', 2)));
 
-  const ts = renderGeneratedTs(buildLibrary(dir));
+  const lib = buildLibrary(dir);
+  const slugOrder = lib.templates.map((t) => t.slug);
 
-  // Extract slugs in order they appear in generated TS
-  const slugMatches = [...ts.matchAll(/"slug":\s*"([^"]+)"/g)];
-  const slugOrder = slugMatches.map(m => m[1]);
-
-  // Files are sorted alphabetically before reading (alpha, mike, zebra)
-  // Templates are sorted by order field (1, 2, 3)
-  // Result: zebra (order 1), mike (order 2), alpha (order 3)
-  assert.deepStrictEqual(slugOrder, ['zebra', 'mike', 'alpha']);
+  // Must be in order field order (1, 2, 3): mike, zebra, alpha
+  // NOT in alphabetical order (alpha, mike, zebra)
+  assert.deepStrictEqual(slugOrder, ['mike', 'zebra', 'alpha']);
 });
 
 test('_categories.md가 없으면 명확한 에러를 던진다', () => {

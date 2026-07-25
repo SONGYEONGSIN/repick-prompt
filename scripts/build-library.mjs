@@ -20,32 +20,37 @@ export function buildLibrary(libDir) {
 
   const files = readdirSync(libDir)
     .filter((f) => f.endsWith('.md') && !f.startsWith('_'))
-    .sort();
+    .sort(); // Ensures deterministic error attribution when multiple files are invalid
 
-  // Pass 1: Read all files and collect entries
+  // Pass 1: Read all files, parse, and check for global duplicates
   const entries = [];
-  for (const f of files) {
-    const path = join(libDir, f);
-    const e = parseTemplateMd(readFileSync(path, 'utf8'), path);
-    entries.push({ path, entry: e });
-  }
-
-  // Pass 2: Check for duplicates
   const seenSlug = new Map();
   const seenOrder = new Map();
-  for (const { path, entry: e } of entries) {
-    const t = e.template;
+  for (const f of files) {
+    const path = join(libDir, f);
+    let src;
+    try {
+      src = readFileSync(path, 'utf8');
+    } catch (e) {
+      if (e.code === 'ENOENT') {
+        throw new Error(`${path} — 파일을 찾을 수 없다 (볼트 디렉토리인지 확인하세요)`);
+      }
+      throw e;
+    }
+    const entry = parseTemplateMd(src, path);
+    const t = entry.template;
     if (seenSlug.has(t.slug)) {
       throw new Error(`${path} — slug 중복: ${t.slug} (${seenSlug.get(t.slug)}에도 있다)`);
     }
     seenSlug.set(t.slug, path);
-    if (seenOrder.has(e.order)) {
-      throw new Error(`${path} — order 중복: ${e.order} (${seenOrder.get(e.order)}에도 있다)`);
+    if (seenOrder.has(entry.order)) {
+      throw new Error(`${path} — order 중복: ${entry.order} (${seenOrder.get(entry.order)}에도 있다)`);
     }
-    seenOrder.set(e.order, path);
+    seenOrder.set(entry.order, path);
+    entries.push({ path, entry });
   }
 
-  // Pass 3: Check individual constraints
+  // Pass 2: Check individual file constraints
   for (const { path, entry: e } of entries) {
     const f = basename(path);
     const t = e.template;
