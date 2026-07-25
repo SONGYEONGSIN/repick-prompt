@@ -71,6 +71,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
   3. `# 후보 <variant> — …` 제목 줄을 `# <title>` 로 바꾸고 그 아래에 `승격 [[<run>/DECISION|라운드]]` 한 줄을 남긴다.
   4. 새 카테고리가 필요하면 `vault/50-library/_categories.md`의 json 배열에 `{id, name}`을 추가한다.
   5. `node scripts/build-library.mjs` — `app/src/data/templates.generated.ts`가 갱신된다. **이 파일을 손으로 고치지 않는다.**
+  6. `README.md`의 '현재 라이브러리' 줄(종수·카테고리 수)을 방금 실행한 `build-library.mjs` 출력으로 최신화한다.
 - `node --experimental-strip-types scripts/export-references.mjs`… 는 실행하지 않는다 — 10-references는 외부 씨앗 전용, 생성물은 20-generations와 라이브러리에 남는다.
 - 검증 (순서 고정): `node scripts/build-library.mjs` → `node scripts/wiki-lint.mjs` → `node --test scripts/lib/template-md.test.mjs scripts/build-library.test.mjs scripts/library-snapshot.test.mjs` → `cd app && npm run lint && npm run build`. wiki-lint는 깨진 위키링크·홈 체인 누락·ledger↔DECISION 정합·MEMORY 200줄 cap을 보고, 라이브러리 포맷(해부 4항목 이상·팁 2개 이상·토큰↔필드 양방향 일치·categoryId 유효)과 파생물 바이트 일치도 검사한다. 단 콘텐츠 손상은 wiki-lint로 못 잡으므로 node --test로 동결 스냅샷을 대조한다 — 셋 중 하나라도 건너뛰면 드리프트나 손상이 조용히 통과한다.
 - 완료 요약 보고: 무엇이 이겼는지, 결과물이 어땠는지, 원칙이 어떻게 바뀌었는지, 라이브러리 몇 종이 되었는지.
