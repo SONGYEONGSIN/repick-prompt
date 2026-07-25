@@ -57,7 +57,7 @@ function l2IsHeading(line) {
   return /^## /.test(line);
 }
 
-/** 섹션 안 첫 코드펜스의 내용. lang이 다르면 던진다. */
+/** 섹션 안 첫 코드펜스의 내용. lang이 다르면 던진다. 코드펜스 후 내용이 있으면 던진다. */
 function fenced(lines, path, what, lang) {
   const open = lines.findIndex((l) => l.startsWith('```'));
   if (open === -1) fail(path, `'## ${what}' 섹션에 코드펜스가 없다`);
@@ -65,6 +65,12 @@ function fenced(lines, path, what, lang) {
   if (got !== lang) fail(path, `'## ${what}' 코드펜스 언어가 '${lang}'이 아니다 — '${got}'`);
   const close = lines.indexOf('```', open + 1);
   if (close === -1) fail(path, `'## ${what}' 코드펜스가 닫히지 않았다`);
+  // 코드펜스 후 비어있지 않은 내용이 있으면 던진다 (파싱 불가능)
+  for (let i = close + 1; i < lines.length; i++) {
+    if (lines[i].trim() !== '') {
+      fail(path, `'## ${what}' 코드펜스 후 내용이 있다 (파싱 불가능)`);
+    }
+  }
   return lines.slice(open + 1, close).join('\n');
 }
 
@@ -177,6 +183,43 @@ export function parseTemplateMd(src, path = '<memory>') {
 }
 
 export function serializeTemplateMd({ template: t, order, promoted, tags }) {
+  // 콘텐츠가 이 포맷으로 표현 가능한지 검증 — 조용한 손실 방지
+  const slug = t.slug;
+
+  // template 본문: 정확히 ``` 줄이 있으면 파싱 불가능
+  for (const line of t.template.split('\n')) {
+    if (line === '```') {
+      fail(slug, 'template 본문에 코드펜스 줄이 있다 (파싱 불가능)');
+    }
+  }
+
+  // 해부 항목 검증
+  for (const a of t.anatomy) {
+    // quote는 단일 줄로만 작성됨 — 개행 불가
+    if (a.quote.includes('\n')) {
+      fail(slug, `해부 '${a.part}' 인용에 개행이 있다 (파싱 불가능)`);
+    }
+    // why 텍스트: ###, ##, > 로 시작하는 줄이 있으면 파싱 불가능
+    for (const line of a.why.split('\n')) {
+      if (line.startsWith('### ')) {
+        fail(slug, `해부 '${a.part}' 설명에 '### ' 줄이 있다 (파싱 불가능)`);
+      }
+      if (line.startsWith('## ')) {
+        fail(slug, `해부 '${a.part}' 설명에 '## ' 줄이 있다 (파싱 불가능)`);
+      }
+      if (line.startsWith('> ')) {
+        fail(slug, `해부 '${a.part}' 설명에 '> ' 줄이 있다 (파싱 불가능)`);
+      }
+    }
+  }
+
+  // 팁: 단일 줄로만 작성됨 — 개행 불가
+  for (const tip of t.tips) {
+    if (tip.includes('\n')) {
+      fail(slug, `팁에 개행이 있다 (파싱 불가능)`);
+    }
+  }
+
   const out = ['---', `tags: ${JSON.stringify(tags)}`];
   for (const k of ['slug', 'categoryId', 'title', 'description']) {
     out.push(`${k}: ${JSON.stringify(t[k])}`);

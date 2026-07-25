@@ -101,3 +101,51 @@ test('카테고리 파일이 왕복한다', () => {
   ];
   assert.deepStrictEqual(parseCategoriesMd(serializeCategoriesMd(cats), '_categories.md'), cats);
 });
+
+// === 비표현 콘텐츠 검증 (Fix Round 1) ===
+
+test('Finding 1: template 본문에 정확히 ``` 줄이 있으면 직렬화 실패', () => {
+  const corrupting = structuredClone(SAMPLE);
+  corrupting.template.template = '예시 출력:\n```\nconsole.log(1)\n```\n\n위처럼 코드를 감싸서 출력하세요.';
+  assert.throws(() => serializeTemplateMd(corrupting), /파싱 불가능/);
+});
+
+test('Finding 2: 해부 설명에 ### 줄이 있으면 직렬화 실패', () => {
+  const corrupting = structuredClone(SAMPLE);
+  corrupting.template.anatomy[0].why = '이 부분이 진짜 설명이다.\n### 가짜 소제목\n어떤 설명\n> 가짜인용';
+  assert.throws(() => serializeTemplateMd(corrupting), /파싱 불가능/);
+});
+
+test('해부 인용에 개행이 있으면 직렬화 실패', () => {
+  const bad = structuredClone(SAMPLE);
+  bad.template.anatomy[0].quote = '첫 줄\n둘째 줄';
+  assert.throws(() => serializeTemplateMd(bad), /개행/);
+});
+
+test('해부 설명에 ## 줄이 있으면 직렬화 실패', () => {
+  const bad = structuredClone(SAMPLE);
+  bad.template.anatomy[0].why = '설명\n## 가짜\n텍스트';
+  assert.throws(() => serializeTemplateMd(bad), /파싱 불가능/);
+});
+
+test('해부 설명에 > 줄이 있으면 직렬화 실패', () => {
+  const bad = structuredClone(SAMPLE);
+  bad.template.anatomy[0].why = '설명\n> 가짜인용\n텍스트';
+  assert.throws(() => serializeTemplateMd(bad), /파싱 불가능/);
+});
+
+test('팁에 개행이 있으면 직렬화 실패', () => {
+  const bad = structuredClone(SAMPLE);
+  bad.template.tips[0] = '팁 하나\n팁 계속';
+  assert.throws(() => serializeTemplateMd(bad), /개행/);
+});
+
+test('코드펜스 후 내용이 있으면 파싱 실패', () => {
+  const md = serializeTemplateMd(SAMPLE);
+  // 필드 섹션의 닫는 펜스 뒤에 내용 삽입
+  const corrupted = md.replace(
+    '```\n\n## 본문',
+    '```\n\n버그: 이 텍스트는 파싱되지 않아야 한다\n## 본문'
+  );
+  assert.throws(() => parseTemplateMd(corrupted, 'bad.md'), /파싱 불가능/);
+});
