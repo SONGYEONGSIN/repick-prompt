@@ -195,7 +195,11 @@ export function serializeTemplateMd({ template: t, order, promoted, tags }) {
 
   // 해부 항목 검증
   for (const a of t.anatomy) {
-    // quote는 단일 줄로만 작성됨 — 개행 불가
+    // part는 단일 줄로만 작성됨 (### ${a.part}) — 개행 불가
+    if (a.part.includes('\n')) {
+      fail(slug, `해부 항목의 part에 개행이 있다 (파싱 불가능)`);
+    }
+    // quote는 단일 줄로만 작성됨 (> ${a.quote}) — 개행 불가
     if (a.quote.includes('\n')) {
       fail(slug, `해부 '${a.part}' 인용에 개행이 있다 (파싱 불가능)`);
     }

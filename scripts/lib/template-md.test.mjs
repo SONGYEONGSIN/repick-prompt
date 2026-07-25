@@ -149,3 +149,9 @@ test('코드펜스 후 내용이 있으면 파싱 실패', () => {
   );
   assert.throws(() => parseTemplateMd(corrupted, 'bad.md'), /파싱 불가능/);
 });
+
+test('해부 part에 개행이 있으면 직렬화 실패 (Fix Round 2)', () => {
+  const corrupting = structuredClone(SAMPLE);
+  corrupting.template.anatomy[0].part = '역할\n가짜줄';
+  assert.throws(() => serializeTemplateMd(corrupting), /파싱 불가능/);
+});
