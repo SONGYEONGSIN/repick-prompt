@@ -31,6 +31,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
   - `## 해부` — `### <part>` 마다 `> 인용` 한 줄 + 설명 문단. **4항목 이상**
   - `## 팁` — `- ` 불릿 **2개 이상**
   - frontmatter는 후보 단계에선 쓰지 않는다 (slug/categoryId/title/description/order는 승격 때 정해진다)
+  - **파서가 엄격하다**: `## 필드`/`## 본문` 코드펜스 뒤에 산문이 남으면 실패, `## 해부`는 첫 `### ` 앞에 내용(빈 줄 제외)이 있으면 실패, `## 팁`은 중첩 불릿이나 `*` 불릿을 쓰면 실패한다.
 
 ## 3. AUTO-SCORE (자동 1차 필터)
 
@@ -66,12 +67,12 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
 - **DNA를 갱신했으면 플러그인 폴백본도 동기화**: `cp vault/00-principles/prompt-principles.md plugin/skills/reprompt/dna/prompt-principles.md` — 플러그인은 레포 안에선 vault DNA(최신)를 우선 읽지만, 스탠드얼론 설치 시 이 번들이 폴백이므로 방치하면 낡은 원칙이 배포된다 (R17에서 v1.15 갱신 시 미동기화로 v1.14 잔존).
 - **승자를 라이브러리에 승격** (번역이 아니라 이동):
   1. `cp vault/20-generations/<run>/candidates/<승자>.md vault/50-library/<slug>.md`
-  2. 그 파일 맨 위에 frontmatter를 붙인다 — `tags: ["template", "<categoryId>"]` / `slug` / `categoryId` / `title` / `description` / `promoted: "<run>"` / `order: <기존 최대 order + 1>`. 값은 전부 JSON 인용 문자열, `order`만 정수.
+  2. 그 파일 맨 위에 frontmatter를 붙인다 — `tags: ["template", "<categoryId>"]` / `slug` / `categoryId` / `title` / `description` / `promoted: "<run>"` / `order: <기존 최대 order + 1>`(최대값 확인: `grep -h '^order:' vault/50-library/*.md | sort -t' ' -k2 -n | tail -1`). 값은 전부 JSON 인용 문자열, `order`만 정수.
   3. `# 후보 <variant> — …` 제목 줄을 `# <title>` 로 바꾸고 그 아래에 `승격 [[<run>/DECISION|라운드]]` 한 줄을 남긴다.
   4. 새 카테고리가 필요하면 `vault/50-library/_categories.md`의 json 배열에 `{id, name}`을 추가한다.
   5. `node scripts/build-library.mjs` — `app/src/data/templates.generated.ts`가 갱신된다. **이 파일을 손으로 고치지 않는다.**
 - `node --experimental-strip-types scripts/export-references.mjs`… 는 실행하지 않는다 — 10-references는 외부 씨앗 전용, 생성물은 20-generations와 라이브러리에 남는다.
-- 검증 (순서 고정): `node scripts/build-library.mjs` → `node scripts/wiki-lint.mjs` → `cd app && npm run lint && npm run build`. wiki-lint가 라이브러리 포맷(해부 4항목 이상·팁 2개 이상·토큰↔필드 양방향 일치·categoryId 유효)과 파생물 바이트 일치를 검사하므로, 생성을 건너뛰면 드리프트로 실패한다.
+- 검증 (순서 고정): `node scripts/build-library.mjs` → `node scripts/wiki-lint.mjs` → `node --test scripts/lib/template-md.test.mjs scripts/build-library.test.mjs scripts/library-snapshot.test.mjs` → `cd app && npm run lint && npm run build`. wiki-lint는 깨진 위키링크·홈 체인 누락·ledger↔DECISION 정합·MEMORY 200줄 cap을 보고, 라이브러리 포맷(해부 4항목 이상·팁 2개 이상·토큰↔필드 양방향 일치·categoryId 유효)과 파생물 바이트 일치도 검사한다. 단 콘텐츠 손상은 wiki-lint로 못 잡으므로 node --test로 동결 스냅샷을 대조한다 — 셋 중 하나라도 건너뛰면 드리프트나 손상이 조용히 통과한다.
 - 완료 요약 보고: 무엇이 이겼는지, 결과물이 어땠는지, 원칙이 어떻게 바뀌었는지, 라이브러리 몇 종이 되었는지.
 
 ## 금지
