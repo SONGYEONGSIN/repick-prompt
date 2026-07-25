@@ -201,3 +201,101 @@ test('왕복 검증 실패 메시지에 " — "가 우연히 있어도 raw Asser
     }
   );
 });
+
+// === 손으로 쓴 마크다운 리터럴 (생성이 아니라 실 운영 입력 형태) ===
+// 위의 모든 테스트는 serialize → parse로 왕복한다 — 즉 파서가 "자기 자신의 직렬화기가 만든
+// 출력"만 읽을 수 있어도 전부 통과한다. 그러나 vault/50-library/*.md의 실제 입력은 사람이
+// 손으로 쓰거나(README "수동으로 템플릿 추가") LEARN이 후보 파일을 그대로 이동시킨 것이라,
+// 직렬화기가 절대 만들지 않는 형태(재정렬된 frontmatter 키, 압축 JSON, 콤마 뒤 공백)를 띤다.
+// serializeTemplateMd와 parseTemplateMd가 서로만 아는 가정을 공유하는 대칭 버그는 이 리터럴이
+// 아니면 전체 스위트를 통과한 채 숨는다.
+test('손으로 쓴 리터럴 마크다운이 기대한 객체로 정확히 파싱된다 (serializer 미경유)', () => {
+  const literalMd = [
+    '---',
+    'slug: "study-plan"',
+    'title: "스터디 플랜 짜기"',
+    'categoryId: "productivity"',
+    'description: "학습 목표와 기간을 넣으면 주차별 스터디 플랜을 만듭니다."',
+    'tags: ["template", "productivity"]',
+    'order: 3',
+    '---',
+    '',
+    '# 스터디 플랜 짜기',
+    '',
+    '씨앗 — 사용자 제공 검증 프롬프트',
+    '',
+    '## 필드',
+    '',
+    '```json',
+    '[{"key":"goal","label":"학습 목표","type":"text","placeholder":"예: 정보처리기사 필기 합격"},{"key":"weeks","label":"기간(주)","type":"text","help":"숫자만 입력"},{"key":"level","label":"난이도","type":"select","options":["입문","중급","고급"]},{"key":"notes","label":"참고사항","type":"textarea","optional":true}]',
+    '```',
+    '',
+    '## 본문',
+    '',
+    '```',
+    '당신은 학습 코치입니다.',
+    '',
+    '- 목표: {{goal}}',
+    '- 기간: {{weeks}}주',
+    '- 난이도: {{level}}',
+    '- 참고사항: {{notes}}',
+    '',
+    '위 정보를 바탕으로 주차별 학습 계획을 표로 작성하세요.',
+    '```',
+    '',
+    '## 해부',
+    '',
+    '### 역할',
+    '',
+    '> 당신은 학습 코치입니다',
+    '',
+    '역할을 먼저 못박으면 이후 문장이 전부 그 관점에서 해석된다.',
+    '',
+    '### 목표 고정',
+    '',
+    '> 목표: {{goal}}',
+    '',
+    '목표를 요구사항보다 앞에 두어 이후 모든 계획이 목표에 종속되게 만든다.',
+    '',
+    '## 팁',
+    '',
+    '- 목표는 측정 가능한 문장으로 적을수록 결과가 좋다.',
+    '- 기간이 짧을수록 우선순위 압축을 요구하는 문장을 추가하면 좋다.',
+  ].join('\n');
+
+  assert.deepStrictEqual(parseTemplateMd(literalMd, 'study-plan.md'), {
+    template: {
+      slug: 'study-plan',
+      categoryId: 'productivity',
+      title: '스터디 플랜 짜기',
+      description: '학습 목표와 기간을 넣으면 주차별 스터디 플랜을 만듭니다.',
+      fields: [
+        { key: 'goal', label: '학습 목표', type: 'text', placeholder: '예: 정보처리기사 필기 합격' },
+        { key: 'weeks', label: '기간(주)', type: 'text', help: '숫자만 입력' },
+        { key: 'level', label: '난이도', type: 'select', options: ['입문', '중급', '고급'] },
+        { key: 'notes', label: '참고사항', type: 'textarea', optional: true },
+      ],
+      template:
+        '당신은 학습 코치입니다.\n\n- 목표: {{goal}}\n- 기간: {{weeks}}주\n- 난이도: {{level}}\n- 참고사항: {{notes}}\n\n위 정보를 바탕으로 주차별 학습 계획을 표로 작성하세요.',
+      anatomy: [
+        {
+          part: '역할',
+          quote: '당신은 학습 코치입니다',
+          why: '역할을 먼저 못박으면 이후 문장이 전부 그 관점에서 해석된다.',
+        },
+        {
+          part: '목표 고정',
+          quote: '목표: {{goal}}',
+          why: '목표를 요구사항보다 앞에 두어 이후 모든 계획이 목표에 종속되게 만든다.',
+        },
+      ],
+      tips: [
+        '목표는 측정 가능한 문장으로 적을수록 결과가 좋다.',
+        '기간이 짧을수록 우선순위 압축을 요구하는 문장을 추가하면 좋다.',
+      ],
+    },
+    order: 3,
+    promoted: null,
+    tags: ['template', 'productivity'],
+  });
+});
