@@ -4,6 +4,8 @@
 // 사용: node scripts/wiki-lint.mjs  (실패 시 exit 1)
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, basename } from 'node:path';
+import { buildLibrary, renderGeneratedTs } from './build-library.mjs';
+import { section, fenced } from './lib/template-md.mjs';
 
 const VAULT = 'vault';
 const fails = [];
@@ -96,6 +98,59 @@ for (const d of runDirs) {
   for (const need of ['SCORES.md', 'DECISION.md']) {
     if (!existsSync(join(VAULT, '20-generations', d, need)))
       warns.push(`미완결 라운드: ${d} — ${need} 없음`);
+  }
+}
+
+// 7. 라이브러리 포맷 + 파생물 일치
+const LIB = join(VAULT, '50-library');
+if (!existsSync(LIB)) {
+  fails.push(`라이브러리 디렉토리 없음: ${LIB}`);
+} else {
+  let lib = null;
+  try {
+    lib = buildLibrary(LIB);
+  } catch (e) {
+    fails.push(`라이브러리 파싱 실패: ${e.message}`);
+  }
+  if (lib) {
+    const catIds = new Set(lib.categories.map((c) => c.id));
+    for (const t of lib.templates) {
+      if (!catIds.has(t.categoryId)) fails.push(`${t.slug}: 모르는 categoryId ${t.categoryId}`);
+      if (t.anatomy.length < 4) fails.push(`${t.slug}: 해부가 ${t.anatomy.length}항목 (4 이상이어야 함)`);
+      if (t.tips.length < 2) fails.push(`${t.slug}: 팁이 ${t.tips.length}개 (2 이상이어야 함)`);
+      if (t.template.includes('```')) fails.push(`${t.slug}: 본문에 코드펜스(\`\`\`)가 있어 파일 구조를 깬다`);
+    }
+    const GEN = 'app/src/data/templates.generated.ts';
+    if (!existsSync(GEN)) {
+      fails.push(`파생물 없음: ${GEN} — node scripts/build-library.mjs 실행 필요`);
+    } else if (readFileSync(GEN, 'utf8') !== renderGeneratedTs(lib)) {
+      fails.push(`파생물 드리프트: ${GEN} ≠ 볼트 재생성 결과 — node scripts/build-library.mjs 실행 필요`);
+    }
+  }
+}
+
+// 8. 후보 마크다운 형식 (새 라운드만 — 과거 라운드는 이력이라 소급하지 않는다)
+const CAND_FROM = '2026-07-26';
+for (const d of runDirs.filter((d) => d >= CAND_FROM)) {
+  const candDir = join(VAULT, '20-generations', d, 'candidates');
+  if (!existsSync(candDir)) continue;
+  for (const f of readdirSync(candDir).filter((f) => f.endsWith('.md'))) {
+    const p = join(candDir, f);
+    const lines = readFileSync(p, 'utf8').split('\n');
+    for (const heading of ['필드', '본문', '해부', '팁']) {
+      const sec = section(lines, heading);
+      if (sec === null) {
+        fails.push(`후보 형식 위반: ${p} — '## ${heading}' 섹션이 없다`);
+        continue;
+      }
+      if (heading === '필드') {
+        try {
+          JSON.parse(fenced(sec, p, '필드', 'json'));
+        } catch (e) {
+          fails.push(`후보 형식 위반: ${p} — 필드 json 파싱 실패 (${e.message})`);
+        }
+      }
+    }
   }
 }
 

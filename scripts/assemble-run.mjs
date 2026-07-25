@@ -17,7 +17,7 @@ mkdirSync(outDir, { recursive: true });
 for (const file of readdirSync(join(runDir, 'candidates')).filter((f) => f.endsWith('.md'))) {
   const variant = basename(file, '.md');
   const md = readFileSync(join(runDir, 'candidates', file), 'utf8');
-  const match = md.match(/## template\s*\n+```\n?([\s\S]*?)```/);
+  const match = md.match(/## (?:본문|template)\s*\n+```\n?([\s\S]*?)```/);
   if (!match) {
     console.error(`✗ ${file}: "## template" 코드블록을 찾지 못함`);
     process.exit(1);

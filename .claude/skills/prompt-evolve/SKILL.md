@@ -6,7 +6,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
 # Prompt Evolve — 5단계 루프
 
 인자: `$TARGET`(타깃 작업, slug화하여 run 이름에 사용), `$N`(기본 3), `--auto`(자동 선택 모드).
-볼트 루트 `vault/`, 라이브러리 `app/src/data/templates.ts`, 유틸 `scripts/prompt-loop.mjs`.
+볼트 루트 `vault/`, 라이브러리 `vault/50-library/`, 유틸 `scripts/prompt-loop.mjs`.
 
 ## 1. RETRIEVE
 
@@ -24,10 +24,14 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
   - b = 가이드 최대화 (help/placeholder 풍부, 초보자 이탈 방지 최우선)
   - c = 프레임워크 내장 (해당 도메인의 검증된 방법론을 요구사항에 구조화)
 - **방향 가설 소비**: `vault/backlog.md`의 `## 방향 가설` 섹션에 미검증(`- [ ]`) 가설이 있으면 그중 첫 번째를 후보 1개의 설계 방향으로 배정한다 (라운드당 1개). 라운드 완료 시 해당 가설을 `- [x]`로 바꾸고 ` → <run-slug> (R<n>, 순위/채택 여부)`를 덧붙인다 — 채택이면 LEARN 게이트로, 탈락이면 기록만 남긴다.
-- 각 후보는 다음 형식의 마크다운으로 `vault/20-generations/<run>/candidates/<variant>.md`에 저장:
-  - 한 줄 컨셉 + fields 표 (key/label/type/optional/help/placeholder/options)
-  - `{{key}}` 토큰을 쓴 template 본문 (4요소 구조 준수)
-  - anatomy 4항목 + tips 2개 (라이브러리 승격 시 그대로 사용)
+- 각 후보는 **라이브러리와 동일한 포맷**으로 `vault/20-generations/<run>/candidates/<variant>.md`에 저장한다 (승격이 번역이 아니라 파일 이동이 되도록):
+  - `# 후보 <variant> — 한 줄 컨셉`
+  - `## 필드` — ```json 코드펜스에 `[{key,label,type,help?,placeholder?,options?,optional?}]` 배열. **마크다운 표를 쓰지 않는다** (표는 열 수가 어긋나도 조용히 통과해 R18 승격본이 깨진 채 지나갔다)
+  - `## 본문` — 언어 없는 코드펜스에 `{{key}}` 토큰을 쓴 template 본문 (4요소 구조 준수)
+  - `## 해부` — `### <part>` 마다 `> 인용` 한 줄 + 설명 문단. **4항목 이상**
+  - `## 팁` — `- ` 불릿 **2개 이상**
+  - frontmatter는 후보 단계에선 쓰지 않는다 (slug/categoryId/title/description/order는 승격 때 정해진다)
+  - **파서가 엄격하다**: `## 필드`/`## 본문` 코드펜스 뒤에 산문이 남으면 실패, `## 해부`는 첫 `### ` 앞에 내용(빈 줄 제외)이 있으면 실패, `## 팁`은 중첩 불릿이나 `*` 불릿을 쓰면 실패한다.
 
 ## 3. AUTO-SCORE (자동 1차 필터)
 
@@ -61,9 +65,15 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
   `node -e "import('./scripts/prompt-loop.mjs').then(m=>m.appendLedger({run:'<run>',candidate:'<variant>',won:true,reason:'<한 줄>',metrics:{judge_rank:1,dna_violations:0,fields:0},principle_delta:'<규칙>'},'vault/30-ledger/prompt-ledger.jsonl'))"`
 - `vault/00-principles/MEMORY.md`에 한 줄 추가 (200줄 cap).
 - **DNA를 갱신했으면 플러그인 폴백본도 동기화**: `cp vault/00-principles/prompt-principles.md plugin/skills/reprompt/dna/prompt-principles.md` — 플러그인은 레포 안에선 vault DNA(최신)를 우선 읽지만, 스탠드얼론 설치 시 이 번들이 폴백이므로 방치하면 낡은 원칙이 배포된다 (R17에서 v1.15 갱신 시 미동기화로 v1.14 잔존).
-- **승자를 라이브러리에 승격**: `app/src/data/templates.ts`의 `TEMPLATES`에 추가 (candidates/<variant>.md의 fields/template/anatomy/tips 그대로). 필요 시 `CATEGORIES`에 새 카테고리 추가.
+- **승자를 라이브러리에 승격** (번역이 아니라 이동):
+  1. `cp vault/20-generations/<run>/candidates/<승자>.md vault/50-library/<slug>.md`
+  2. 그 파일 맨 위에 frontmatter를 붙인다 — `tags: ["template", "<categoryId>"]` / `slug` / `categoryId` / `title` / `description` / `promoted: "<run>"` / `order: <기존 최대 order + 1>`(최대값 확인: `grep -h '^order:' vault/50-library/*.md | sort -t' ' -k2 -n | tail -1`). 값은 전부 JSON 인용 문자열, `order`만 정수.
+  3. `# 후보 <variant> — …` 제목 줄을 `# <title>` 로 바꾸고 그 아래에 `승격 [[<run>/DECISION|라운드]]` 한 줄을 남긴다.
+  4. 새 카테고리가 필요하면 `vault/50-library/_categories.md`의 json 배열에 `{id, name}`을 추가한다.
+  5. `node scripts/build-library.mjs` — `app/src/data/templates.generated.ts`가 갱신된다. **이 파일을 손으로 고치지 않는다.**
+  6. `README.md`의 '현재 라이브러리' 줄(종수·카테고리 수)을 방금 실행한 `build-library.mjs` 출력으로 최신화한다.
 - `node --experimental-strip-types scripts/export-references.mjs`… 는 실행하지 않는다 — 10-references는 외부 씨앗 전용, 생성물은 20-generations와 라이브러리에 남는다.
-- 검증: `cd app && npm run lint && npm run build` 통과 확인 + **`node scripts/wiki-lint.mjs` 통과 확인** (깨진 위키링크·홈 체인 누락·ledger↔DECISION 정합·MEMORY cap — 볼트 지식 위생, Karpathy LLM wiki lint 패턴).
+- 검증 (순서 고정): `node scripts/build-library.mjs` → `node scripts/wiki-lint.mjs` → `node --test scripts/lib/template-md.test.mjs scripts/build-library.test.mjs scripts/library-snapshot.test.mjs` → `cd app && npm run lint && npm run build`. wiki-lint는 깨진 위키링크·홈 체인 누락·ledger↔DECISION 정합·MEMORY 200줄 cap을 보고, 라이브러리 포맷(해부 4항목 이상·팁 2개 이상·토큰↔필드 양방향 일치·categoryId 유효)과 파생물 바이트 일치도 검사한다. 단 콘텐츠 손상은 wiki-lint로 못 잡으므로 node --test로 동결 스냅샷을 대조한다 — 셋 중 하나라도 건너뛰면 드리프트나 손상이 조용히 통과한다.
 - 완료 요약 보고: 무엇이 이겼는지, 결과물이 어땠는지, 원칙이 어떻게 바뀌었는지, 라이브러리 몇 종이 되었는지.
 
 ## 금지

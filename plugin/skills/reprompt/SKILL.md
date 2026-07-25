@@ -12,7 +12,7 @@ helper: 스킬 폴더(`$CLAUDE_SKILL_DIR`, 없으면 스킬 로드 시 주입된
 
 - 현재 대화 + `$TASK` + (레포 내면) 관련 파일에서 다음을 뽑아 **의도 브리프**로 정리한다: 목표 / 대상 / 제약 / 보유 실데이터·자료.
 - DNA를 읽는다: `vault/00-principles/prompt-principles.md`가 있으면 그것을, 없으면 번들 `$CLAUDE_SKILL_DIR/dna/prompt-principles.md`(env 없으면 주입된 Base directory의 `dna/prompt-principles.md`)를. 읽은 DNA 버전(제목의 vX.Y)을 기억한다.
-- 참조 앵커: 레포에 `app/src/data/templates.ts` 또는 `vault/10-references/`가 있으면 `$TASK`와 가장 가까운 것 1~3개를 참조로 훑는다(복제 아님, 구조 참고만).
+- 참조 앵커: 레포에 `vault/50-library/` 또는 `vault/10-references/`가 있으면 `$TASK`와 가장 가까운 것 1~3개를 참조로 훑는다(복제 아님, 구조 참고만).
 
 ## 1. 질문 유도
 
