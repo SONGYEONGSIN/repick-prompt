@@ -155,3 +155,29 @@ test('해부 part에 개행이 있으면 직렬화 실패 (Fix Round 2)', () => 
   corrupting.template.anatomy[0].part = '역할\n가짜줄';
   assert.throws(() => serializeTemplateMd(corrupting), /파싱 불가능/);
 });
+
+// === Fix Round 3: 다중 방출 필드 + 왕복 검증 ===
+
+test('order가 음수면 직렬화 실패 (Fix Round 3)', () => {
+  const bad = structuredClone(SAMPLE);
+  bad.order = -1;
+  assert.throws(() => serializeTemplateMd(bad), /음이 아닌 정수/);
+});
+
+test('order가 정수가 아니면 직렬화 실패 (Fix Round 3)', () => {
+  const bad = structuredClone(SAMPLE);
+  bad.order = 3.5;
+  assert.throws(() => serializeTemplateMd(bad), /음이 아닌 정수/);
+});
+
+test('promoted에 개행이 있으면 직렬화 실패 (Fix Round 3)', () => {
+  const corrupting = structuredClone(SAMPLE);
+  corrupting.promoted = '2026-07-24-demo\n## 팁\n\n- 가짜팁';
+  assert.throws(() => serializeTemplateMd(corrupting), /파싱 불가능/);
+});
+
+test('title에 개행이 있으면 직렬화 실패 (Fix Round 3)', () => {
+  const corrupting = structuredClone(SAMPLE);
+  corrupting.template.title = '데모\n## 팁\n\n- 가짜팁';
+  assert.throws(() => serializeTemplateMd(corrupting), /파싱 불가능/);
+});

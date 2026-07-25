@@ -1,6 +1,8 @@
 // 템플릿 마크다운 ↔ 객체 변환. vault/50-library/ 가 라이브러리의 단일 원본이므로
 // 이 모듈이 그 포맷의 유일한 계약이다. 모르는 문법을 만나면 던진다 — 조용한 오파싱 금지.
 
+import assert from 'node:assert/strict';
+
 const FIELD_KEYS = new Set(['key', 'label', 'type', 'help', 'placeholder', 'options', 'optional']);
 const FIELD_TYPES = new Set(['text', 'textarea', 'select']);
 const SECTIONS = ['필드', '본문', '해부', '팁'];
@@ -186,6 +188,22 @@ export function serializeTemplateMd({ template: t, order, promoted, tags }) {
   // 콘텐츠가 이 포맷으로 표현 가능한지 검증 — 조용한 손실 방지
   const slug = t.slug;
 
+  // Direct guards for fields emitted raw or in multiple places (Fix Round 3)
+  // order is emitted raw in frontmatter as `order: ${order}` — must be safe
+  if (!Number.isInteger(order) || order < 0) {
+    fail(slug, `order는 음이 아닌 정수여야 한다 (파싱 불가능)`);
+  }
+
+  // title is emitted raw in heading as `# ${t.title}` — must be single line
+  if (t.title.includes('\n')) {
+    fail(slug, `title에 개행이 있다 (파싱 불가능)`);
+  }
+
+  // promoted is emitted raw in body line `승격 [[${promoted}/...]]` — must be single line
+  if (promoted && promoted.includes('\n')) {
+    fail(slug, `promoted에 개행이 있다 (파싱 불가능)`);
+  }
+
   // template 본문: 정확히 ``` 줄이 있으면 파싱 불가능
   for (const line of t.template.split('\n')) {
     if (line === '```') {
@@ -238,7 +256,26 @@ export function serializeTemplateMd({ template: t, order, promoted, tags }) {
   out.push('## 팁', '');
   for (const tip of t.tips) out.push(`- ${tip}`);
   out.push('');
-  return out.join('\n');
+  const md = out.join('\n');
+
+  // Round-trip self-check: serialize → parse → compare (Fix Round 3)
+  // 이 검증이 열거식 검증이 놓친 미래의 콜리전을 모두 잡는 보호막이다
+  try {
+    const parsed = parseTemplateMd(md, slug);
+    // 왕복 후 동일한지 검증 (promoted의 null 정규화 포함)
+    assert.deepStrictEqual(parsed, { template: t, order, promoted: promoted ?? null, tags });
+  } catch (e) {
+    // 이미 경로 에러면 재던짐
+    if (e.message.includes(' — ')) throw e;
+    // 어서션 에러 → 왕복 실패
+    if (e instanceof assert.AssertionError) {
+      fail(slug, `왕복 검증 실패 (콘텐츠가 손상됨)`);
+    }
+    // 파싱 에러
+    fail(slug, `왕복 파싱 실패 — ${e.message}`);
+  }
+
+  return md;
 }
 
 export function parseCategoriesMd(src, path = '<memory>') {
