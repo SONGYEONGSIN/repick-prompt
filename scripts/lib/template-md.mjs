@@ -8,7 +8,12 @@ const FIELD_TYPES = new Set(['text', 'textarea', 'select']);
 const SECTIONS = ['필드', '본문', '해부', '팁'];
 
 function fail(path, msg) {
-  throw new Error(`${path} — ${msg}`);
+  const err = new Error(`${path} — ${msg}`);
+  // 구조적 마커: 이 모듈의 fail()이 던진, 이미 `${path} — ${사유}` 형식을 갖춘 에러임을 표시한다.
+  // 메시지 내용(예: ' — ' 포함 여부)으로 출처를 추측하지 않기 위함 — 한국어 문장은 em dash를
+  // 흔히 쓰므로 메시지 스니핑은 콘텐츠 값에 따라 오탐지한다.
+  err.isTemplateMdFail = true;
+  throw err;
 }
 
 /** `---` 프런트매터를 평면 스칼라로만 읽는다. 중첩 없음. */
@@ -265,13 +270,16 @@ export function serializeTemplateMd({ template: t, order, promoted, tags }) {
     // 왕복 후 동일한지 검증 (promoted의 null 정규화 포함)
     assert.deepStrictEqual(parsed, { template: t, order, promoted: promoted ?? null, tags });
   } catch (e) {
-    // 이미 경로 에러면 재던짐
-    if (e.message.includes(' — ')) throw e;
+    // 에러 출처는 타입/마커로 구조적으로 판별한다 — 메시지에 ' — '가 있는지로 추측하지 않는다.
+    // (assert.deepStrictEqual의 pretty-print diff가 콘텐츠 값을 그대로 담으므로, 이 프로젝트
+    // 흔한 한국어 표현인 ' — '가 우연히 diff에 등장하면 메시지 스니핑은 오탐지한다.)
     // 어서션 에러 → 왕복 실패
     if (e instanceof assert.AssertionError) {
       fail(slug, `왕복 검증 실패 (콘텐츠가 손상됨)`);
     }
-    // 파싱 에러
+    // 이미 이 모듈의 fail()이 던진, 경로 접두사가 붙은 에러면 재던짐
+    if (e.isTemplateMdFail) throw e;
+    // 그 외 예상 못한 파싱 에러
     fail(slug, `왕복 파싱 실패 — ${e.message}`);
   }
 

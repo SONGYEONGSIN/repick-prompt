@@ -181,3 +181,23 @@ test('title에 개행이 있으면 직렬화 실패 (Fix Round 3)', () => {
   corrupting.template.title = '데모\n## 팁\n\n- 가짜팁';
   assert.throws(() => serializeTemplateMd(corrupting), /파싱 불가능/);
 });
+
+// === 에러 타입 오탐지 회귀 (Open Finding) ===
+
+test('왕복 검증 실패 메시지에 " — "가 우연히 있어도 raw AssertionError가 아니라 ${slug} — ${사유}로 던진다', () => {
+  // 팁 파싱은 '- ' 뒤를 trim()하지만, 직렬화 쪽 가드는 개행(\n)만 검거하고 앞뒤 공백은 보지 않는다.
+  // 그래서 앞뒤 공백만 있는 팁은 어떤 직접 가드도 통과해 왕복 자기 검증까지 도달하고,
+  // 거기서 assert.deepStrictEqual이 실패한다. 이 팁 값 자체가 프로젝트 흔한 표현인 ' — '를
+  // 포함하므로, 실패 진단용 diff 메시지에도 ' — '가 그대로 등장해 예전 구현의
+  // e.message.includes(' — ') 휴리스틱을 오탐지시켰다 (raw AssertionError가 그대로 새어나감).
+  const corrupting = structuredClone(SAMPLE);
+  corrupting.template.tips[0] = '  팁 하나 — 대시가 들어간다.  ';
+  assert.throws(
+    () => serializeTemplateMd(corrupting),
+    (err) => {
+      assert.ok(!(err instanceof assert.AssertionError), `raw AssertionError가 새어나갔다: ${err.message}`);
+      assert.match(err.message, /^demo — 왕복 검증 실패/);
+      return true;
+    }
+  );
+});
