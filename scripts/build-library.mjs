@@ -7,7 +7,15 @@ import { parseTemplateMd, parseCategoriesMd } from './lib/template-md.mjs';
 
 export function buildLibrary(libDir) {
   const catPath = join(libDir, '_categories.md');
-  const categories = parseCategoriesMd(readFileSync(catPath, 'utf8'), catPath);
+  let categories;
+  try {
+    categories = parseCategoriesMd(readFileSync(catPath, 'utf8'), catPath);
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      throw new Error(`${catPath} — 파일을 찾을 수 없다 (볼트 디렉토리인지 확인하세요)`);
+    }
+    throw e;
+  }
   const catIds = new Set(categories.map((c) => c.id));
 
   const files = readdirSync(libDir)
@@ -16,12 +24,10 @@ export function buildLibrary(libDir) {
 
   // Pass 1: Read all files and collect entries
   const entries = [];
-  const entriesByPath = new Map();
   for (const f of files) {
     const path = join(libDir, f);
     const e = parseTemplateMd(readFileSync(path, 'utf8'), path);
     entries.push({ path, entry: e });
-    entriesByPath.set(path, e);
   }
 
   // Pass 2: Check for duplicates
