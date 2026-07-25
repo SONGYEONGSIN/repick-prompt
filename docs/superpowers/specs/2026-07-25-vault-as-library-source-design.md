@@ -58,29 +58,40 @@
 
 ````markdown
 ---
-tags: [template, report]
-slug: business-proposal
-categoryId: report
-title: 사업 제안서 작성
-description: 대안 비교표와 근거 계산으로 결재용 제안서를 작성합니다.
-promoted: 2026-07-24-business-proposal
-fields:
-  - key: audience
-    label: 결재 대상
-    type: text
-    help: 누가 이 제안을 검토·결재하나요?
-    placeholder: 본부장 김OO (재무팀 사전검토 포함)
-  - key: constraint
-    label: 예산·기한 제약
-    type: text
-    optional: true
-    help: 승인 예산 상한이나 결정 기한이 있으면
-    placeholder: 예산 상한 1,000만원, 8/15 전 결재
+tags: ["template", "report"]
+slug: "business-proposal"
+categoryId: "report"
+title: "사업 제안서 작성"
+description: "대안 비교표와 근거 계산으로 결재용 제안서를 작성합니다."
+promoted: "2026-07-24-business-proposal"
+order: 20
 ---
 
 # 사업 제안서 작성
 
-승격 [[2026-07-24-business-proposal/DECISION|R19]] · DNA [[prompt-principles|v1.17]]
+승격 [[2026-07-24-business-proposal/DECISION|라운드]]
+
+## 필드
+
+```json
+[
+  {
+    "key": "audience",
+    "label": "결재 대상",
+    "type": "text",
+    "help": "누가 이 제안을 검토·결재하나요?",
+    "placeholder": "본부장 김OO (재무팀 사전검토 포함)"
+  },
+  {
+    "key": "constraint",
+    "label": "예산·기한 제약",
+    "type": "text",
+    "optional": true,
+    "help": "승인 예산 상한이나 결정 기한이 있으면",
+    "placeholder": "예산 상한 1,000만원, 8/15 전 결재"
+  }
+]
+```
 
 ## 본문
 
@@ -103,21 +114,30 @@ fields:
 - alternatives_raw에 현상유지를 포함시키지 않으면 비교표가 성립하지 않는다 …
 ````
 
-### 구조화 데이터는 frontmatter, 지식은 본문
+### 기계 데이터는 JSON, 지식은 마크다운
 
-`fields`는 7속성 레코드 리스트이고 앱 폼이 그대로 먹는 기계 입력이다. 마크다운 표는 `|`·줄바꿈·열 수에 취약해 **이미 3건이 깨졌다**. YAML은 인용·개행·특수문자를 파서가 처리한다.
+`fields`는 7속성 레코드 리스트이고 앱 폼이 그대로 먹는 기계 입력이다. 마크다운 표는 `|`·줄바꿈·열 수에 취약해 **이미 3건이 깨졌다**.
+
+이걸 frontmatter 중첩 YAML로 두지 않고 `## 필드`의 ```json 펜스로 옮긴 이유는 **루트 npm 의존성을 만들지 않기 위해서**다. 이 레포는 루트에 `package.json`이 없고 모든 스크립트가 맨 `node`로 돈다. 매일 밤 새 클라우드 샌드박스에서 무인 실행되는 파이프라인에서 `npm install` 한 단계는 조용히 실패할 수 있는 지점이 하나 느는 것이다. `JSON.parse`는 내장이고 이스케이프를 완전히 처리하며, frontmatter는 평면 스칼라만 남아 15줄짜리 리더로 충분해진다. 대가는 옵시디언 프로퍼티 패널에서 `fields`가 안 보이는 것인데, 28종 × 7속성 중첩 프로퍼티는 사람이 훑는 물건이 아니다.
+
+프런트매터 값은 전부 JSON 인용 문자열로 쓴다(`order`만 정수). 실측에서 `newsletter.fields.key_content.placeholder`에 개행이 들어 있었고, 맨문자열 스칼라로는 그걸 표현할 수 없다.
 
 `해부`·`팁`은 사람이 읽는 지식이라 본문에 남아야 옵시디언에서 값을 한다. 헤딩(`###`)과 인용(`>`)은 내용에 무엇이 들어와도 경계가 안 깨진다. 현재 후보 형식인 `- 역할: "인용" — 설명`은 설명 안에 `—`가 들어 있어 파싱이 불가능하다.
+
+`order`는 앱의 표시 순서다. 현재 `TEMPLATES` 배열 순서는 카테고리순이 아니라 승격된 차례대로라, 파일 글롭으로는 복원되지 않는다. 마이그레이션이 현재 배열 위치를 1..28로 박고, 이후 승격은 최대값 + 1을 쓴다.
 
 ### 파싱 계약
 
 | 대상 | 규칙 |
 |---|---|
-| `slug` `categoryId` `title` `description` `fields` | frontmatter (필수) |
-| `promoted` | frontmatter (선택 — 씨앗은 없음) |
-| `template` | `## 본문` 직후 첫 코드펜스의 내용 |
-| `anatomy[]` | `## 해부` 아래 각 `### <part>` — 첫 `>` 줄이 `quote`, 이후 문단이 `why` |
+| `slug` `categoryId` `title` `description` `order` | frontmatter (필수, 평면 스칼라) |
+| `tags` `promoted` | frontmatter (선택 — 씨앗은 `promoted` 없음) |
+| `fields[]` | `## 필드` 안 첫 ```json 펜스를 `JSON.parse` |
+| `template` | `## 본문` 안 첫 코드펜스(언어 없음)의 내용 |
+| `anatomy[]` | `## 해부` 아래 각 `### <part>` — 첫 `>` 줄이 `quote`, 나머지가 `why` |
 | `tips[]` | `## 팁` 아래 최상위 불릿 |
+
+`# 제목`과 승격 링크 줄은 `## ` 섹션 밖이라 파서가 무시한다 — 사람이 읽는 장식이다.
 
 `vault/50-library/_categories.md`는 frontmatter에 `categories: [{id, name}]`를 담는다. `CATEGORIES` 11종이 지금 TS 리터럴인데 LEARN이 "필요 시 새 카테고리 추가"를 하므로 자율 루프가 건드리는 대상이고, 원본만 TS에 남으면 반쪽이 된다.
 
@@ -126,7 +146,7 @@ fields:
 1. frontmatter 필수 키 존재
 2. **본문 `{{token}}` ↔ `fields[].key` 양방향 일치** — 토큰만 있고 필드가 없거나(빈칸이 영영 안 채워짐), 필드만 있고 토큰이 없는(입력받고 버림) 고전 버그. 지금 아무도 검사하지 않는다
 3. `categoryId`가 `_categories.md`에 존재
-4. 해부 4항목, 팁 2개 이상 — `prompt-evolve` SKILL의 `anatomy 4항목 + tips 2개` 계약과 같은 기준
+4. **해부 4항목 이상**, 팁 2개 이상 — 실측상 4개가 대부분이지만 5개인 템플릿도 있어 상한을 두지 않는다 (part 종류도 11가지: 역할·맥락·요구사항·출력 형식 외에 조건 명세·구도 지시·네거티브 조건·출력 제한·정리 기준·분석 기준·리뷰 기준)
 5. **파생 파일 바이트 일치** — 재생성 결과가 커밋된 것과 같은가
 
 5번은 DNA 가드(버전 문자열 비교)보다 강하다. LEARN 5단계가 이미 `wiki-lint`를 부르고 있어 강제 지점이 공짜로 생긴다.
@@ -198,18 +218,18 @@ LEARN의 승격이 번역에서 이동으로 바뀐다.
 
 ```diff
 - 승자를 app/src/data/templates.ts의 TEMPLATES 배열에 TS 객체로 추가
-+ 승자 후보 md를 vault/50-library/<slug>.md로 이동 + frontmatter 4줄 추가
++ 승자 후보 md를 vault/50-library/<slug>.md로 이동 + frontmatter 추가(tags/slug/categoryId/title/description/promoted/order)
 + 새 카테고리는 _categories.md에
 + node scripts/build-library.mjs 실행 → templates.generated.ts 갱신분 커밋
 + node scripts/wiki-lint.mjs (재생성 일치·토큰↔필드 검사 포함)
 ```
 
-**GENERATE가 만드는 후보 형식도 같이 바꾼다.** 후보를 템플릿 포맷(frontmatter `fields:` + `### 역할` 헤딩)으로 쓰면:
+**GENERATE가 만드는 후보 형식도 같이 바꾼다.** 후보를 템플릿 포맷(`## 필드` json 펜스 + `### <part>` 헤딩)으로 쓰면:
 
-- 승격이 파일 이동 + 4줄 추가가 되어 손 번역이 실제로 사라진다
+- 승격이 파일 이동 + frontmatter 추가가 되어 손 번역이 실제로 사라진다
 - 후보 단계에서 이미 wiki-lint가 형식을 검사한다 — 깨진 표 3건이 AUTO-SCORE까지 조용히 흘러간 경로가 막힌다
 
-후보에는 `slug` `categoryId` `title` `description`이 없다(승격 시 결정). 따라서 wiki-lint는 `50-library/`에 전체 검사를, `20-generations/*/candidates/`에는 `fields` 형식만 검사한다. 과거 라운드 후보는 소급하지 않는다 — `20-generations`는 이력이고, 후보 검사는 새로 생기는 라운드에만 적용한다.
+후보에는 frontmatter를 쓰지 않는다 — `slug` `categoryId` `title` `description` `order`가 승격 시점에 정해지기 때문이다. 따라서 wiki-lint는 `50-library/`에 전체 검사를, `20-generations/*/candidates/`에는 `fields` 형식만 검사한다. 과거 라운드 후보는 소급하지 않는다 — `20-generations`는 이력이고, 후보 검사는 새로 생기는 라운드에만 적용한다.
 
 ## 자율 루틴 안전
 
