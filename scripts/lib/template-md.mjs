@@ -47,7 +47,7 @@ function parseFrontmatter(src, path) {
 }
 
 /** `## <제목>` 섹션의 본문 줄. 없으면 null. */
-function section(lines, heading) {
+export function section(lines, heading) {
   const start = lines.findIndex((l) => l.trim() === `## ${heading}`);
   if (start === -1) return null;
   let end = lines.length;
@@ -65,7 +65,7 @@ function l2IsHeading(line) {
 }
 
 /** 섹션 안 첫 코드펜스의 내용. lang이 다르면 던진다. 코드펜스 후 내용이 있으면 던진다. */
-function fenced(lines, path, what, lang) {
+export function fenced(lines, path, what, lang) {
   const open = lines.findIndex((l) => l.startsWith('```'));
   if (open === -1) fail(path, `'## ${what}' 섹션에 코드펜스가 없다`);
   const got = lines[open].slice(3).trim();

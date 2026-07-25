@@ -5,6 +5,7 @@
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { buildLibrary, renderGeneratedTs } from './build-library.mjs';
+import { section, fenced } from './lib/template-md.mjs';
 
 const VAULT = 'vault';
 const fails = [];
@@ -102,7 +103,9 @@ for (const d of runDirs) {
 
 // 7. 라이브러리 포맷 + 파생물 일치
 const LIB = join(VAULT, '50-library');
-if (existsSync(LIB)) {
+if (!existsSync(LIB)) {
+  fails.push(`라이브러리 디렉토리 없음: ${LIB}`);
+} else {
   let lib = null;
   try {
     lib = buildLibrary(LIB);
@@ -133,9 +136,20 @@ for (const d of runDirs.filter((d) => d >= CAND_FROM)) {
   if (!existsSync(candDir)) continue;
   for (const f of readdirSync(candDir).filter((f) => f.endsWith('.md'))) {
     const p = join(candDir, f);
-    const src = readFileSync(p, 'utf8');
-    if (!/^## 필드$/m.test(src) || !/^```json$/m.test(src)) {
-      fails.push(`후보 형식 위반: ${p} — '## 필드' 의 json 코드펜스가 없다`);
+    const lines = readFileSync(p, 'utf8').split('\n');
+    for (const heading of ['필드', '본문', '해부', '팁']) {
+      const sec = section(lines, heading);
+      if (sec === null) {
+        fails.push(`후보 형식 위반: ${p} — '## ${heading}' 섹션이 없다`);
+        continue;
+      }
+      if (heading === '필드') {
+        try {
+          JSON.parse(fenced(sec, p, '필드', 'json'));
+        } catch (e) {
+          fails.push(`후보 형식 위반: ${p} — 필드 json 파싱 실패 (${e.message})`);
+        }
+      }
     }
   }
 }
