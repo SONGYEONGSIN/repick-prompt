@@ -1,14 +1,15 @@
 // 라이브러리(templates.ts)의 씨앗 프롬프트를 vault/10-references/ 참조 파일로 내보낸다.
-// 단일 소스는 templates.ts — 이 스크립트는 언제든 재생성 가능하다.
+// 단일 소스는 vault/50-library — 이 스크립트는 언제든 재생성 가능하다.
 // 실행: node --experimental-strip-types scripts/export-references.mjs
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const { TEMPLATES, categoryName } = await import(
-  join(root, 'app/src/data/templates.ts')
-);
+import { buildLibrary } from './build-library.mjs';
+
+const { templates: TEMPLATES, categories } = buildLibrary(join(root, 'vault/50-library'));
+const categoryName = (id) => categories.find((c) => c.id === id)?.name ?? id;
 
 const outDir = join(root, 'vault/10-references');
 mkdirSync(outDir, { recursive: true });
