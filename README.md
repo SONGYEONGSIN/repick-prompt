@@ -44,7 +44,7 @@ repick-prompt/
 ## 라이브러리 뷰어 실행
 
 ```bash
-cd app && npm install && npm run dev   # http://localhost:3000
+cd app && npm install && npm run dev   # http://localhost:3200
 ```
 
 빈칸 채우기 → 실시간 조립 미리보기 → 복사. 템플릿마다 "프롬프트 해부"(왜 작동하는가) 학습 패널 포함.
