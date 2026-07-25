@@ -36,13 +36,13 @@ repick-prompt/
 │   ├── 00-principles/              # 프롬프트 DNA + 학습 인덱스 (LEARN이 갱신)
 │   ├── 10-references/              # 씨앗 10개 (export-references.mjs로 재생성)
 │   ├── 20-generations/             # 라운드별 후보·조립·결과물·점수·결정
-│   └── 30-ledger/                  # prompt-ledger.jsonl (append-only)
+│   ├── 30-ledger/                  # prompt-ledger.jsonl (append-only)
+│   └── 50-library/                 # ★ 승격 템플릿 = 라이브러리 원본 (LEARN이 여기로 이동)
 ├── scripts/
 │   ├── prompt-loop.mjs             # ledger/run/조립 유틸 (+ 테스트)
 │   ├── assemble-run.mjs            # 후보 × 시나리오 값 → 실행용 프롬프트
 │   └── export-references.mjs       # templates.ts → 10-references
 ├── app/                            # 라이브러리 뷰어 (Next.js 16, 빌더 UI)
-│   └── src/data/templates.ts       # ★ 템플릿 라이브러리 = 데이터 (승격 대상)
 └── docs/DESIGN.md
 ```
 
@@ -62,4 +62,4 @@ cd app && npm install && npm run dev   # http://localhost:3000
 
 ## 수동으로 템플릿 추가
 
-`app/src/data/templates.ts`의 `TEMPLATES` 배열에 객체 추가 — `{{key}}` 토큰 ↔ `fields[].key` 매핑, `optional` 필드는 비우면 줄 제거. 단, 새 템플릿은 `vault/00-principles/prompt-principles.md`의 DNA를 따를 것 (루프로 만들면 자동 준수).
+`vault/50-library/<slug>.md`를 추가하고 `node scripts/build-library.mjs` 실행 — `{{key}}` 토큰 ↔ `fields[].key` 매핑, `optional` 필드는 비우면 줄 제거. 단, 새 템플릿은 `vault/00-principles/prompt-principles.md`의 DNA를 따를 것 (루프로 만들면 자동 준수).
