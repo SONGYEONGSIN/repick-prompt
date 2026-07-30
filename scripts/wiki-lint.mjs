@@ -161,6 +161,50 @@ if (!existsSync(LIB)) {
   }
 }
 
+// 9. SCENARIO 사실 누락 (새 라운드만 — 8과 같은 이유로 소급하지 않는다)
+//    values.json 에만 있고 SCENARIO.md 에 없는 사실은, 심사자가 결과물의 정당한 문구를
+//    창작·환각으로 오판하게 만든다. R1 재검·R11·R21 로 **세 번 재발**했고 SKILL.md 의
+//    산문 경고로는 세 번 다 막지 못했다 — 그래서 기계 검사로 올린다.
+//
+//    한계(의도적): 수치와 축자 인용만 본다. R21 의 '극단적 얼리어답터' 같은 순수 구절은
+//    못 잡는다. 필드 단위 n-gram 커버리지를 16개 라운드 전수로 실측해봤으나 오탐이
+//    압도적이었다 — values 에는 사실이 아닌 지시(예: tone "담백하고 솔직하게")도 들어 있어
+//    "모든 필드가 SCENARIO 에 있어야 한다"는 전제 자체가 틀렸다. 잡히는 것만 확실히 잡는다.
+const SCEN_FACTS_FROM = '2026-07-26';
+const noComma = (s) => s.replaceAll(',', '');
+for (const d of runDirs.filter((d) => d >= SCEN_FACTS_FROM)) {
+  const vp = join(VAULT, '20-generations', d, 'values.json');
+  const sp = join(VAULT, '20-generations', d, 'SCENARIO.md');
+  if (!existsSync(vp) || !existsSync(sp)) continue;
+
+  const scen = readFileSync(sp, 'utf8');
+  const scenNoComma = noComma(scen);
+  const missing = new Set();
+
+  for (const fields of Object.values(JSON.parse(readFileSync(vp, 'utf8')))) {
+    if (typeof fields !== 'object' || fields === null) continue;
+    for (const v of Object.values(fields)) {
+      if (typeof v !== 'string') continue;
+      for (const m of v.matchAll(/\d[\d,]*(?:\.\d+)?/g)) {
+        const n = noComma(m[0]);
+        if (/^(19|20)\d{2}$/.test(n)) continue; // 연도는 SCENARIO 가 관례적으로 생략한다
+        if (!scenNoComma.includes(n)) missing.add(`수치 ${m[0]}`);
+      }
+      for (const m of v.matchAll(/"([^"]{6,})"/g)) {
+        const q = m[1].trim();
+        if (!scen.includes(q)) missing.add(`인용 "${q.slice(0, 24)}…"`);
+      }
+    }
+  }
+
+  if (missing.size) {
+    fails.push(
+      `SCENARIO 사실 누락: ${d} — ${[...missing].join(', ')} 가 values.json 에만 있다. ` +
+        `심사자는 SCENARIO 만 보고 대조하므로 정당한 문구를 창작으로 오판한다 — SCENARIO.md 에 명기하라`
+    );
+  }
+}
+
 // 8. 후보 마크다운 형식 (새 라운드만 — 과거 라운드는 이력이라 소급하지 않는다)
 const CAND_FROM = '2026-07-26';
 for (const d of runDirs.filter((d) => d >= CAND_FROM)) {
