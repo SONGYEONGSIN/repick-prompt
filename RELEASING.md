@@ -4,6 +4,11 @@
 
 ## 새 버전 릴리즈
 
+0. 번들 재생성 — 볼트 DNA·라이브러리를 배포물에 반영:
+   ```bash
+   node scripts/build-plugin-bundle.mjs && node scripts/wiki-lint.mjs
+   ```
+   `plugin/skills/reprompt/dna/`·`library/`는 **생성물이다.** 손으로 고치지 않는다. 어긋난 채로 릴리즈하면 설치자에게 낡은 원칙과 빠진 템플릿이 배포된다 — `wiki-lint`가 FAIL로 막는다.
 1. 버전 범프 — `plugin/.claude-plugin/plugin.json`의 `version`:
    ```bash
    node -e "import('./scripts/release-version.mjs').then(m=>m.writeVersion('plugin/.claude-plugin/plugin.json', process.argv[1]))" 1.1.0

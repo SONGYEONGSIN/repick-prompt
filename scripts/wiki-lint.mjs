@@ -68,17 +68,49 @@ if (memLines > 200) fails.push(`MEMORY.md ${memLines}줄 — 200줄 cap 초과`)
 // 5. DNA 플레인 인용 잔존 (위키링크 규칙 위반)
 const dna = readFileSync(join(VAULT, '00-principles/prompt-principles.md'), 'utf8');
 
-// 5a. 플러그인 폴백 DNA 드리프트 (vault DNA ↔ plugin 번들본) — WARN
+// 5a. 플러그인 번들 드리프트 (vault 원본 ↔ plugin 번들본) — FAIL
+//     번들은 생성물이다. 손으로 고치지 말고 재생성한다.
+//     WARN이던 시절엔 아무것도 막지 못했다 — DNA를 어긋내도, 라이브러리를 통째로 지워도 exit 0이었다.
+const REGEN = 'node scripts/build-plugin-bundle.mjs 를 실행하라';
 const pluginDnaPath = 'plugin/skills/reprompt/dna/prompt-principles.md';
+const pluginLibDir = 'plugin/skills/reprompt/library';
+const vaultLibDir = join(VAULT, '50-library');
+
 if (existsSync(pluginDnaPath)) {
   const pluginDna = readFileSync(pluginDnaPath, 'utf8');
   if (pluginDna !== dna) {
     const vaultVer = dna.match(/DNA \((v[\d.]+)\)/)?.[1] ?? '?';
     const pluginVer = pluginDna.match(/DNA \((v[\d.]+)\)/)?.[1] ?? '?';
-    warns.push(
-      `플러그인 폴백 DNA 드리프트: vault ${vaultVer} ≠ plugin ${pluginVer} — cp vault/00-principles/prompt-principles.md ${pluginDnaPath}`
-    );
+    // 버전이 같은데 바이트가 다른 경우가 있다 (같은 버전 안에서 본문만 수정) — 그때 "v1.18 ≠ v1.18"은 읽는 사람을 혼란시킨다
+    const detail =
+      vaultVer === pluginVer
+        ? `버전은 ${vaultVer}로 같으나 내용이 다름`
+        : `vault ${vaultVer} ≠ plugin ${pluginVer}`;
+    fails.push(`플러그인 번들 DNA 드리프트: ${detail} — ${REGEN}`);
   }
+} else {
+  fails.push(`플러그인 번들 DNA 없음: ${pluginDnaPath} — ${REGEN}`);
+}
+
+if (existsSync(pluginLibDir)) {
+  const vaultLibFiles = readdirSync(vaultLibDir).filter((f) => f.endsWith('.md')).sort();
+  const bundleFiles = readdirSync(pluginLibDir).sort();
+
+  // 볼트에 없는 파일이 번들에 잔존 (삭제 미전파)
+  const stale = bundleFiles.filter((f) => !vaultLibFiles.includes(f));
+  if (stale.length) fails.push(`플러그인 번들 잔존 파일: ${stale.join(', ')} — ${REGEN}`);
+
+  // 번들에 빠진 파일
+  const missing = vaultLibFiles.filter((f) => !bundleFiles.includes(f));
+  if (missing.length) fails.push(`플러그인 번들 누락: ${missing.join(', ')} — ${REGEN}`);
+
+  // 양쪽에 있는 파일의 바이트 일치
+  const differing = vaultLibFiles
+    .filter((f) => bundleFiles.includes(f))
+    .filter((f) => readFileSync(join(vaultLibDir, f), 'utf8') !== readFileSync(join(pluginLibDir, f), 'utf8'));
+  if (differing.length) fails.push(`플러그인 번들 내용 불일치: ${differing.join(', ')} — ${REGEN}`);
+} else {
+  fails.push(`플러그인 번들 라이브러리 없음: ${pluginLibDir} — ${REGEN}`);
 }
 
 // 5b. DNA 비대 임계 — 200줄 근접 시 two-tier(요약 DNA + 원칙별 entity 페이지) 전환 검토

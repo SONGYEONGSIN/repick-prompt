@@ -64,7 +64,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
 - ledger append:
   `node -e "import('./scripts/prompt-loop.mjs').then(m=>m.appendLedger({run:'<run>',candidate:'<variant>',won:true,reason:'<한 줄>',metrics:{judge_rank:1,dna_violations:0,fields:0},principle_delta:'<규칙>'},'vault/30-ledger/prompt-ledger.jsonl'))"`
 - `vault/00-principles/MEMORY.md`에 한 줄 추가 (200줄 cap).
-- **DNA를 갱신했으면 플러그인 폴백본도 동기화**: `cp vault/00-principles/prompt-principles.md plugin/skills/reprompt/dna/prompt-principles.md` — 플러그인은 레포 안에선 vault DNA(최신)를 우선 읽지만, 스탠드얼론 설치 시 이 번들이 폴백이므로 방치하면 낡은 원칙이 배포된다 (R17에서 v1.15 갱신 시 미동기화로 v1.14 잔존).
+- **플러그인 번들 재생성**: `node scripts/build-plugin-bundle.mjs` — 볼트 DNA와 승격 라이브러리를 플러그인 번들(`plugin/skills/reprompt/dna/`·`library/`)로 복사한다. 플러그인은 레포 안에선 vault를 우선 읽지만 스탠드얼론 설치 시엔 이 번들이 유일한 원본이므로, 방치하면 낡은 원칙과 빠진 템플릿이 배포된다 (R17에서 v1.15 갱신 시 미동기화로 v1.14 잔존). **번들 파일을 손으로 고치지 않는다** — 볼트를 고치고 재생성한다. 잊어도 아래 검증의 `wiki-lint`가 FAIL로 잡는다.
 - **승자를 라이브러리에 승격** (번역이 아니라 이동):
   1. `cp vault/20-generations/<run>/candidates/<승자>.md vault/50-library/<slug>.md`
   2. 그 파일 맨 위에 frontmatter를 붙인다 — `tags: ["template", "<categoryId>"]` / `slug` / `categoryId` / `title` / `description` / `promoted: "<run>"` / `order: <기존 최대 order + 1>`(최대값 확인: `grep -h '^order:' vault/50-library/*.md | sort -t' ' -k2 -n | tail -1`). 값은 전부 JSON 인용 문자열, `order`만 정수.
@@ -73,7 +73,7 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
   5. `node scripts/build-library.mjs` — `app/src/data/templates.generated.ts`가 갱신된다. **이 파일을 손으로 고치지 않는다.**
   6. `README.md`의 '현재 라이브러리' 줄(종수·카테고리 수)을 방금 실행한 `build-library.mjs` 출력으로 최신화한다.
 - `node --experimental-strip-types scripts/export-references.mjs`… 는 실행하지 않는다 — 10-references는 외부 씨앗 전용, 생성물은 20-generations와 라이브러리에 남는다.
-- 검증 (순서 고정): `node scripts/build-library.mjs` → `node scripts/wiki-lint.mjs` → `node --test scripts/lib/template-md.test.mjs scripts/build-library.test.mjs scripts/library-snapshot.test.mjs` → `cd app && npm run lint && npm run build`. wiki-lint는 깨진 위키링크·홈 체인 누락·ledger↔DECISION 정합·MEMORY 200줄 cap을 보고, 라이브러리 포맷(해부 4항목 이상·팁 2개 이상·토큰↔필드 양방향 일치·categoryId 유효)과 파생물 바이트 일치도 검사한다. 단 콘텐츠 손상은 wiki-lint로 못 잡으므로 node --test로 동결 스냅샷을 대조한다 — 셋 중 하나라도 건너뛰면 드리프트나 손상이 조용히 통과한다.
+- 검증 (순서 고정): `node scripts/build-plugin-bundle.mjs` → `node scripts/build-library.mjs` → `node scripts/wiki-lint.mjs` → `node --test scripts/lib/template-md.test.mjs scripts/build-library.test.mjs scripts/library-snapshot.test.mjs` → `cd app && npm run lint && npm run build`. wiki-lint는 깨진 위키링크·홈 체인 누락·ledger↔DECISION 정합·MEMORY 200줄 cap을 보고, 라이브러리 포맷(해부 4항목 이상·팁 2개 이상·토큰↔필드 양방향 일치·categoryId 유효)과 파생물 바이트 일치도 검사한다. 단 콘텐츠 손상은 wiki-lint로 못 잡으므로 node --test로 동결 스냅샷을 대조한다 — 셋 중 하나라도 건너뛰면 드리프트나 손상이 조용히 통과한다.
 - 완료 요약 보고: 무엇이 이겼는지, 결과물이 어땠는지, 원칙이 어떻게 바뀌었는지, 라이브러리 몇 종이 되었는지.
 
 ## 금지
