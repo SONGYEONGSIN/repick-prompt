@@ -1,0 +1,29 @@
+name: 진화 루틴 워치독
+
+# 자율 루틴은 실패해도 알림이 없다 — 신호가 "PR의 부재"뿐이라 사람이 매일 확인해야만 감지된다.
+# 이 워크플로가 실패(exit 1)하면 GitHub이 이메일을 보내므로, 부재가 존재로 바뀐다.
+# 루틴 자신이 보고하게 하는 방식으로는 "아예 뜨지 않은 경우"를 원리적으로 못 잡기에 별도 인프라에 둔다.
+
+on:
+  schedule:
+    # 20:00 UTC = 05:00 KST — 루틴(18:00 UTC = 03:00 KST) 2시간 뒤.
+    # GitHub cron 은 best-effort 라 수십 분 지연되는 일이 흔해 여유를 둔다.
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # ledger 마지막 변경 시점을 git log 로 읽는다
+
+      - name: 진화 진척 점검
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/evolve-watchdog.sh
