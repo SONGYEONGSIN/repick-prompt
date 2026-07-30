@@ -22,7 +22,7 @@ tags: [backlog, prompt]
 - [x] 발표 자료 개요와 스크립트 작성 → 2026-07-21-presentation-script (R17)
 - [x] 뉴스레터 작성 → 2026-07-23-newsletter (R18)
 - [x] 사업 제안서 작성 → 2026-07-24-business-proposal (R19)
-- [ ] SNS 광고 카피 작성
+- [x] SNS 광고 카피 작성 → 2026-07-26-sns-ad-copy (R20)
 - [ ] 유저 페르소나 정의
 - [ ] 서비스 FAQ 작성
 - [ ] 보도자료 작성
