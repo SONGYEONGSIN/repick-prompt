@@ -29,7 +29,7 @@ tags: [backlog, prompt]
 - [x] 뉴스레터 작성 → 2026-07-23-newsletter (R18)
 - [x] 사업 제안서 작성 → 2026-07-24-business-proposal (R19)
 - [x] SNS 광고 카피 작성 → 2026-07-26-sns-ad-copy (R20)
-- [ ] 유저 페르소나 정의
+- [x] 유저 페르소나 정의 → 2026-07-30-user-persona (R21)
 - [ ] 서비스 FAQ 작성
 - [ ] 보도자료 작성
 
