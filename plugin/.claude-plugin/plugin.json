@@ -1,8 +1,15 @@
 {
   "name": "reprompt",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "메타프롬프팅 스킬 — 대화 맥락을 프롬프트 DNA로 맞춤 프롬프트로 깎아 파일로 산출·실행·점검",
-  "author": { "name": "SONGYEONGSIN", "url": "https://github.com/SONGYEONGSIN" },
+  "author": {
+    "name": "SONGYEONGSIN",
+    "url": "https://github.com/SONGYEONGSIN"
+  },
   "repository": "https://github.com/SONGYEONGSIN/repick-prompt",
-  "keywords": ["prompt", "meta-prompting", "prompt-engineering"]
+  "keywords": [
+    "prompt",
+    "meta-prompting",
+    "prompt-engineering"
+  ]
 }
