@@ -136,6 +136,8 @@ test('initRun은 usage 로그에 1건 기록한다', () => {
     dna_version: 'v1.18',
     created_at: '2026-07-31T02:00:00Z',
     slug: '유저-페르소나-정의',
+    layer: null,
+    matched_slug: null,
   });
   rmSync(dir, { recursive: true, force: true });
 });
@@ -172,6 +174,108 @@ test('initRun은 usage 기록 여부를 반환값에 표시한다', () => {
     usageLog: logPath,
   });
   assert.equal(r.usageLogged, true);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('initRun은 1층이면 layer=1과 matched_slug를 기록한다', () => {
+  const { dir, logPath } = usageFixture();
+  initRun({
+    task: 'SNS 광고 카피 뽑아줘',
+    target: 'general',
+    dateStr: '2026-08-01',
+    outBase: dir,
+    usageLog: logPath,
+    layer: 1,
+    matchedSlug: 'sns-ad-copy',
+  });
+  const e = JSON.parse(readLines(logPath)[0]);
+  assert.equal(e.layer, 1);
+  assert.equal(e.matched_slug, 'sns-ad-copy');
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('initRun은 2층이면 layer=2와 matched_slug=null을 기록한다', () => {
+  const { dir, logPath } = usageFixture();
+  initRun({
+    task: '드론 자격증 안내문',
+    target: 'general',
+    dateStr: '2026-08-01',
+    outBase: dir,
+    usageLog: logPath,
+    layer: 2,
+  });
+  const e = JSON.parse(readLines(logPath)[0]);
+  assert.equal(e.layer, 2);
+  assert.equal(e.matched_slug, null);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('initRun은 layer를 안 주면 null로 남기고 죽지 않는다', () => {
+  const { dir, logPath } = usageFixture();
+  const r = initRun({
+    task: '층 미지정',
+    target: 'general',
+    dateStr: '2026-08-01',
+    outBase: dir,
+    usageLog: logPath,
+  });
+  const e = JSON.parse(readLines(logPath)[0]);
+  assert.equal(e.layer, null);
+  assert.equal(e.matched_slug, null);
+  assert.equal(r.usageLogged, true);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('initRun은 1층인데 matchedSlug가 없으면 throw한다', () => {
+  assert.throws(
+    () => initRun({ task: 'x', target: 'general', dateStr: '2026-08-01', usageLog: false, layer: 1 }),
+    /matchedSlug/
+  );
+});
+
+test('initRun은 2층인데 matchedSlug가 있으면 throw한다 (모순 데이터 차단)', () => {
+  assert.throws(
+    () =>
+      initRun({
+        task: 'x',
+        target: 'general',
+        dateStr: '2026-08-01',
+        usageLog: false,
+        layer: 2,
+        matchedSlug: 'resume',
+      }),
+    /matchedSlug/
+  );
+});
+
+test('initRun은 layer가 1|2가 아니면 throw한다', () => {
+  assert.throws(
+    () => initRun({ task: 'x', target: 'general', dateStr: '2026-08-01', usageLog: false, layer: 3 }),
+    /layer/
+  );
+});
+
+test('initRun은 layer를 더해도 기존 5필드를 그대로 남긴다', () => {
+  const { dir, logPath } = usageFixture();
+  initRun({
+    task: '필드 보존 확인',
+    target: 'research',
+    dnaVersion: 'v1.20',
+    createdAt: '2026-08-01T00:00:00Z',
+    dateStr: '2026-08-01',
+    outBase: dir,
+    usageLog: logPath,
+    layer: 2,
+  });
+  assert.deepStrictEqual(JSON.parse(readLines(logPath)[0]), {
+    task: '필드 보존 확인',
+    target: 'research',
+    dna_version: 'v1.20',
+    created_at: '2026-08-01T00:00:00Z',
+    slug: '필드-보존-확인',
+    layer: 2,
+    matched_slug: null,
+  });
   rmSync(dir, { recursive: true, force: true });
 });
 

@@ -95,8 +95,10 @@ DNA 4요소 뼈대로 조립한다. PROMPT.md는 아래 4개 섹션을 반드시
 ```bash
 # SKILL_DIR: 플러그인 설치 시 $CLAUDE_SKILL_DIR, 없으면 이 SKILL.md의 Base directory 절대경로로 치환
 SKILL_DIR="${CLAUDE_SKILL_DIR:-<이 SKILL.md의 Base directory 절대경로>}"
-node -e "import(require('url').pathToFileURL(process.argv[1]).href).then(m=>{const r=m.initRun({task:process.argv[2],target:process.argv[3],dnaVersion:process.argv[4],createdAt:process.argv[5],dateStr:process.argv[6],outBase:process.argv[7]});console.log(JSON.stringify(r));})" "$SKILL_DIR/scripts/reprompt-init.mjs" "<task>" "<target>" "<vX.Y>" "<isoTime>" "<YYYY-MM-DD>" "<outBase 또는 .reprompt>"
+node -e "import(require('url').pathToFileURL(process.argv[1]).href).then(m=>{const r=m.initRun({task:process.argv[2],target:process.argv[3],dnaVersion:process.argv[4],createdAt:process.argv[5],dateStr:process.argv[6],outBase:process.argv[7],layer:Number(process.argv[8]),matchedSlug:process.argv[9]||undefined});console.log(JSON.stringify(r));})" "$SKILL_DIR/scripts/reprompt-init.mjs" "<task>" "<target>" "<vX.Y>" "<isoTime>" "<YYYY-MM-DD>" "<outBase 또는 .reprompt>" "<1 또는 2>" "<1층이면 슬러그, 2층이면 빈 문자열>"
 ```
+
+**`layer`를 반드시 넘긴다** — 1층이면 `1`과 히트한 슬러그, 2층이면 `2`와 빈 문자열. 이 값이 없으면 기록이 `null`로 남아 6단계와 이후 집계가 라이브러리 공백을 볼 수 없다. 1층인데 슬러그가 없거나 2층인데 슬러그가 있으면 `initRun`이 던진다(모순된 기록은 집계를 조용히 오염시킨다).
 
 `initRun`은 `~/.reprompt/usage.jsonl`에 사용 기록 1건을 남긴다(6단계가 읽는다). 쓰기에 실패해도 진행을 막지 않는다.
 
@@ -119,7 +121,7 @@ node -e "import(require('url').pathToFileURL(process.argv[1]).href).then(m=>{con
 
 ## 6. 반복 신호 (3층 훅)
 
-- `~/.reprompt/usage.jsonl`이 있으면 읽어, 이번 `$TASK`와 **같은 성격의 작업이 과거에 반복됐는지** 본다.
+- `~/.reprompt/usage.jsonl`이 있으면 읽되 **`layer: 2` 기록만** 본다 — 1층은 이미 라이브러리가 덮은 작업이라 제안 대상이 아니다. 그 안에서 이번 `$TASK`와 **같은 성격의 작업이 반복됐는지** 본다.
 - 반복이 뚜렷하고 그 작업에 맞는 라이브러리 템플릿이 **없으면**, 완료 보고에 한 줄 덧붙인다: "이 작업을 N번째 깎았습니다 — 진화 백로그 타깃으로 올릴까요?"
 - **판정 임계와 제안 카드 형식은 아직 정해지지 않았다 (S3 범위).** 지금은 근거가 뚜렷할 때만 언급하고, 애매하면 **아무 말도 하지 않는다** — 근거 없는 제안은 그 자체가 환각이다.
 - 볼트 레포가 아니면 제안하지 않는다(백로그가 없는 곳이다).
