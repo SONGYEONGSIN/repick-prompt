@@ -1,0 +1,11 @@
+# 작업 트리 줄바꿈을 LF로 고정한다.
+#
+# 이 레포의 마크다운 파서들은 줄을 '\n'으로만 자른다
+# (scripts/lib/template-md.mjs, scripts/wiki-lint.mjs). Windows에서
+# core.autocrlf=true로 체크아웃하면 줄 끝에 '\r'이 남아
+# 프런트매터 검사(첫 줄 === '---')와 코드펜스 종료 검사(줄 === '```')가
+# 전부 어긋난다 — build-library / build-plugin-bundle / wiki-lint가
+# 실행 자체를 못 한다. 파서를 고치는 대신 입력을 고정하는 쪽을 택한다.
+* text=auto eol=lf
+
+*.ico binary
