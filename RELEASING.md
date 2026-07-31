@@ -17,7 +17,8 @@
 3. 커밋: `git commit -am "chore(release): v1.1.0"`.
 4. 검증: `claude plugin validate .` (0 errors).
 5. 태그 + push: `claude plugin tag ./plugin --push -m "reprompt %s"` (→ `reprompt--v1.1.0` 생성·origin push) + `git push origin main`.
-6. 설치자 갱신: `claude plugin marketplace update` + `claude plugin update reprompt`.
+6. 설치자 갱신: `claude plugin marketplace update` + `claude plugin update reprompt@repick-prompt`.
+   **마켓플레이스 이름을 붙여야 한다** — 설치명이 `reprompt@repick-prompt`라 `claude plugin update reprompt`는 `✘ Plugin "reprompt" not found`로 실패한다.
 
 ## 사용자 설치
 
