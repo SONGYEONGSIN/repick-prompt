@@ -57,6 +57,8 @@ export function initRun(opts) {
     dateStr,
     outBase = '.reprompt',
     usageLog = DEFAULT_USAGE_LOG,
+    layer,
+    matchedSlug,
   } = opts;
   if (!task || !String(task).trim()) throw new Error('initRun: task가 필요합니다');
   if (!TARGETS.includes(target)) {
@@ -80,7 +82,22 @@ export function initRun(opts) {
   writeFileSync(metaPath, JSON.stringify(meta, null, 2) + '\n');
 
   // 사용 기록 — 반복되는 작업을 감지해 진화 백로그 타깃을 제안하는 원료가 된다.
-  // 집계·제안은 아직 없다(S3). 지금은 시계를 돌려두는 것이 목적이다.
+  // 집계·제안은 아직 없다(S3b). 지금은 시계를 돌려두는 것이 목적이다.
+  //
+  // layer: 1(라이브러리 히트) | 2(뼈대 없이 조립). 2층만 모으면 라이브러리가 못 덮은
+  // 작업이 그대로 드러나 유사도 클러스터링 없이 백로그 후보가 나온다. matched_slug 는
+  // 부수로 라이브러리 적중률을 준다 — 지금은 승격만 하고 사용 여부를 아무도 모른다.
+  //
+  // 값이 **모순되면** 던진다(1층인데 슬러그 없음 / 2층인데 슬러그 있음). 이건 호출자의
+  // 버그이고, 모순된 기록은 S3b 를 조용히 오염시킨다. 반면 layer 를 아예 안 준 경우는
+  // null 로 남기고 진행한다 — 로깅 필드 하나 때문에 사용자의 실행을 죽이지 않는다.
+  // 대신 S3b 집계가 'layer 미기록 N건'을 보고해 구멍이 조용히 묻히지 않게 한다.
+  if (layer !== undefined) {
+    if (layer !== 1 && layer !== 2) throw new Error(`initRun: layer는 1 또는 2여야 합니다 (받음: ${layer})`);
+    if (layer === 1 && !matchedSlug) throw new Error('initRun: layer 1이면 matchedSlug가 필요합니다');
+    if (layer === 2 && matchedSlug) throw new Error('initRun: layer 2에는 matchedSlug를 주지 않습니다');
+  }
+
   const usageLogged =
     usageLog === false
       ? false
@@ -91,6 +108,8 @@ export function initRun(opts) {
             dna_version: dnaVersion ?? null,
             created_at: createdAt ?? null,
             slug,
+            layer: layer ?? null,
+            matched_slug: matchedSlug ?? null,
           },
           usageLog
         );
