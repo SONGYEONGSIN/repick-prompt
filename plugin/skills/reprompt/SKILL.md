@@ -1,27 +1,65 @@
 ---
 name: reprompt
-description: '대화 맥락을 DNA 기준으로 맞춤 프롬프트로 깎아 파일로 산출하고 실행·점검하는 메타프롬프팅 루프. "이 대화로 프롬프트 만들어줘", "메타프롬프팅", "맞춤 프롬프트 깎아줘", "/reprompt" 시 사용. 인자: 작업(생략 시 대화에서 추론), --target general|coding|image|research, --auto(게이트 생략), --out <dir>.'
+description: '대화 맥락을 DNA 기준으로 맞춤 프롬프트로 깎아 파일로 산출하고 실행·점검하는 메타프롬프팅 루프. 승격 라이브러리에 맞는 템플릿이 있으면 그 검증된 뼈대를 먼저 쓴다. "이 대화로 프롬프트 만들어줘", "메타프롬프팅", "맞춤 프롬프트 깎아줘", "/reprompt" 시 사용. 인자: 작업(생략 시 대화에서 추론), --target general|coding|image|research, --auto(게이트 생략), --out <dir>, --evolve(볼트 레포 전용, 진화 라운드 1회).'
 ---
 
-# reprompt — 메타프롬프팅 6단계 루프
+# reprompt — 라우터 + 메타프롬프팅 6단계 루프
 
-인자: `$TASK`(생략 시 대화에서 추론), `--target`(general|coding|image|research, 생략 시 자동 감지), `--auto`(HUMAN GATE 생략), `--out <dir>`(기본 `.reprompt/`).
-helper: 스킬 폴더(`$CLAUDE_SKILL_DIR`, 없으면 스킬 로드 시 주입된 "Base directory for this skill" 절대경로)의 `scripts/reprompt-init.mjs`. DNA: 같은 폴더의 `dna/prompt-principles.md`(번들). **단 현재 레포에 `vault/00-principles/prompt-principles.md`가 있으면 그쪽(최신)을 우선 읽는다.**
+인자: `$TASK`(생략 시 대화에서 추론), `--target`(general|coding|image|research, 생략 시 자동 감지), `--auto`(HUMAN GATE 생략), `--out <dir>`(기본 `.reprompt/`), `--evolve`(진화 라운드 강제 진입).
+
+**자산 경로** — 레포 안이면 볼트(최신), 아니면 번들(스탠드얼론). 둘 다 같은 마크다운 포맷이라 읽는 방식이 같다:
+
+| 자산 | 레포 안 | 스탠드얼론 |
+|---|---|---|
+| DNA | `vault/00-principles/prompt-principles.md` | `$CLAUDE_SKILL_DIR/dna/prompt-principles.md` |
+| 승격 라이브러리 | `vault/50-library/*.md` | `$CLAUDE_SKILL_DIR/library/*.md` |
+
+`$CLAUDE_SKILL_DIR`이 없으면 스킬 로드 시 주입된 "Base directory for this skill" 절대경로를 쓴다. helper는 그 폴더의 `scripts/reprompt-init.mjs`.
+
+## 라우팅 — 무엇을 할지 먼저 정한다
+
+**`--evolve`가 있으면** (클라우드 루틴이 쓰는 경로):
+
+- 볼트 레포인가? `vault/00-principles/prompt-principles.md`와 `vault/backlog.md`가 **둘 다** 있으면 그렇다.
+- 있으면 → `prompt-evolve` 스킬로 위임하고 그 5단계를 그대로 수행한다. 아래 6단계로 내려오지 않는다.
+- 없으면 → **거부한다.** "진화 라운드는 볼트가 있는 레포에서만 돕니다 — 이 플러그인은 DNA와 승격 라이브러리를 데이터로 실어 나를 뿐, 진화 루프는 원본 레포에 있습니다"라고 알리고 종료. 임의로 볼트를 만들지 않는다.
+
+**`--evolve`가 없으면** 아래 3층을 순서대로 판정한다:
+
+| 층 | 조건 | 무엇을 하나 |
+|---|---|---|
+| **1층** | 라이브러리에 `$TASK`와 맞는 템플릿이 있다 | 그 **검증된 뼈대**를 쓰고 빈칸을 대화 맥락에서 채운다 → `2A` |
+| **2층** | 맞는 것이 없다 | 뼈대 없이 DNA 4요소로 새로 깎는다 → `2B` |
+| **3층** | 같은 성격의 작업이 반복됐다 | 진화 백로그 타깃으로 올릴지 제안한다 → `6` |
+
+1층과 2층의 차이는 **뼈대의 출처**뿐이다. 나머지 단계(질문 유도 → 폴더 생성 → 게이트 → 실행·점검)는 공통이다.
 
 ## 0. 컨텍스트 덤핑
 
 - 현재 대화 + `$TASK` + (레포 내면) 관련 파일에서 다음을 뽑아 **의도 브리프**로 정리한다: 목표 / 대상 / 제약 / 보유 실데이터·자료.
-- DNA를 읽는다: `vault/00-principles/prompt-principles.md`가 있으면 그것을, 없으면 번들 `$CLAUDE_SKILL_DIR/dna/prompt-principles.md`(env 없으면 주입된 Base directory의 `dna/prompt-principles.md`)를. 읽은 DNA 버전(제목의 vX.Y)을 기억한다.
-- 참조 앵커: 레포에 `vault/50-library/` 또는 `vault/10-references/`가 있으면 `$TASK`와 가장 가까운 것 1~3개를 참조로 훑는다(복제 아님, 구조 참고만).
+- DNA를 읽는다(위 자산 경로). 읽은 DNA 버전(제목의 vX.Y)을 기억한다.
+- **라이브러리 히트 판정**: 라이브러리 각 파일의 frontmatter `title`·`description`을 훑어 `$TASK`와 맞는 것을 찾는다. 문자열 매칭이 아니라 **의미로 판단**한다 (한국어 자연어라 키워드 일치는 취약하다).
+  - 명확히 맞으면 1층.
+  - 없으면 2층.
+  - **애매하면 임의로 정하지 말고 사용자에게 묻는다** — "`<제목>` 템플릿이 있는데 이걸 뼈대로 쓸까요, 새로 깎을까요?" (1단계 질문에 함께 실어 보낸다.)
+- 2층이면 참조 앵커로 라이브러리·`vault/10-references/`에서 가까운 것 1~3개를 구조 참고만 한다(복제 아님).
 
 ## 1. 질문 유도
 
-- 의도 브리프 ↔ DNA 필수 항목을 대조해 **비어 있는 것만** 한 번에 질문한다(최대 4개, 과잉 심문 금지). 후보 질문:
-  타겟 사용자 / 핵심 목표·기능 / 톤·디자인 레퍼런스 / 완성도 수준 / (도메인이 요구하면) 결과물에 실릴 실데이터.
+- 의도 브리프 ↔ (1층이면 그 템플릿의 필수 필드 / 2층이면 DNA 필수 항목)를 대조해 **비어 있는 것만** 한 번에 질문한다(최대 4개, 과잉 심문 금지).
 - `--auto`면 질문하지 않고 최선 추정으로 진행하되, 세운 **가정을 BRIEF.md에 명시**한다.
 - 답변/가정을 의도 브리프에 반영한다.
 
-## 2. 프롬프트 깎기 + 실행환경 변환
+## 2A. 라이브러리 뼈대 채우기 (1층)
+
+- 히트한 템플릿 파일을 읽는다: `## 필드`(JSON 배열)와 `## 본문`(`{{key}}` 토큰).
+- 각 필드를 대화 맥락·답변에서 채운다. **보유하지 않은 실데이터는 창작하지 말고 `[확인 필요]`로 남긴다.**
+- 선택(optional) 필드가 비면 그 줄을 제거한다 — 반쪽짜리 줄이 남지 않게.
+- 본문의 `{{key}}`를 채운 값으로 치환한 결과가 `PROMPT.md`다. **템플릿 본문을 임의로 고쳐 쓰지 않는다** — 이 뼈대는 라틴 방진 블라인드 심사를 통과해 승격된 것이고, 즉석 수정은 그 검증을 무효화한다. 부족하면 2층으로 내려가라.
+- `--target` 오버레이는 1층에도 적용한다(아래 표).
+- `RATIONALE.md`에 어떤 라이브러리 템플릿을 왜 골랐는지 + 그 템플릿이 쓰는 DNA 장치를 3~6줄로 적는다.
+
+## 2B. 프롬프트 깎기 + 실행환경 변환 (2층)
 
 DNA 4요소 뼈대로 조립한다. PROMPT.md는 아래 4개 섹션을 반드시 포함한다:
 
@@ -60,15 +98,17 @@ SKILL_DIR="${CLAUDE_SKILL_DIR:-<이 SKILL.md의 Base directory 절대경로>}"
 node -e "import(require('url').pathToFileURL(process.argv[1]).href).then(m=>{const r=m.initRun({task:process.argv[2],target:process.argv[3],dnaVersion:process.argv[4],createdAt:process.argv[5],dateStr:process.argv[6],outBase:process.argv[7]});console.log(JSON.stringify(r));})" "$SKILL_DIR/scripts/reprompt-init.mjs" "<task>" "<target>" "<vX.Y>" "<isoTime>" "<YYYY-MM-DD>" "<outBase 또는 .reprompt>"
 ```
 
+`initRun`은 `~/.reprompt/usage.jsonl`에 사용 기록 1건을 남긴다(6단계가 읽는다). 쓰기에 실패해도 진행을 막지 않는다.
+
 - 반환된 `runDir`에 다음을 쓴다:
   - `BRIEF.md` — 의도 브리프(덤핑 + 질문 답변 + 가정)
-  - `PROMPT.md` — 깎은 프롬프트(4요소 + 오버레이)
-  - `RATIONALE.md` — 어떤 DNA 장치를 왜 썼는지 3~6줄(쓰면서 배우기)
+  - `PROMPT.md` — 1층이면 채운 라이브러리 뼈대, 2층이면 깎은 4요소 + 오버레이
+  - `RATIONALE.md` — 어떤 DNA 장치(또는 라이브러리 템플릿)를 왜 썼는지 3~6줄(쓰면서 배우기)
   - (OUTPUT.md, INSPECTION.md는 다음 단계에서 채운다)
 
 ## 4. HUMAN GATE
 
-- `--auto`가 아니면: PROMPT.md 요약 + "왜 이렇게 깎았나"(RATIONALE 요약) + 세운 가정을 사용자에게 제시하고 **승인/수정/거부**를 받는다(응답 없이 진행 금지). 수정 요청이면 2단계로 돌아가 반영하고, 3단계로 다시 내려와 BRIEF/PROMPT/RATIONALE 파일을 갱신한다(디스크에 이전 버전이 남지 않게).
+- `--auto`가 아니면: PROMPT.md 요약 + "왜 이렇게 깎았나"(RATIONALE 요약) + 세운 가정 + (1층이면) **어떤 라이브러리 템플릿을 뼈대로 썼는지**를 제시하고 **승인/수정/거부**를 받는다(응답 없이 진행 금지). 수정 요청이면 2A/2B로 돌아가 반영하고, 3단계로 다시 내려와 BRIEF/PROMPT/RATIONALE 파일을 갱신한다(디스크에 이전 버전이 남지 않게).
 - `--auto`면: 자동 승인하고, 완료 보고에서 사용자가 뒤집을 수 있음을 명시.
 
 ## 5. 실행 + 점검
@@ -77,13 +117,22 @@ node -e "import(require('url').pathToFileURL(process.argv[1]).href).then(m=>{con
 - **점검**: OUTPUT을 PROMPT.md가 선언한 요구사항 + DNA anti-slop(형용사만 / 환각·과장 / 미충전 실데이터)으로 대조해 `INSPECTION.md`에 체크리스트(항목: 통과/격차)로 쓴다.
 - 격차가 있으면 1회 정제를 제안한다. **점검 없이 완료·성공을 주장하지 않는다.**
 
+## 6. 반복 신호 (3층 훅)
+
+- `~/.reprompt/usage.jsonl`이 있으면 읽어, 이번 `$TASK`와 **같은 성격의 작업이 과거에 반복됐는지** 본다.
+- 반복이 뚜렷하고 그 작업에 맞는 라이브러리 템플릿이 **없으면**, 완료 보고에 한 줄 덧붙인다: "이 작업을 N번째 깎았습니다 — 진화 백로그 타깃으로 올릴까요?"
+- **판정 임계와 제안 카드 형식은 아직 정해지지 않았다 (S3 범위).** 지금은 근거가 뚜렷할 때만 언급하고, 애매하면 **아무 말도 하지 않는다** — 근거 없는 제안은 그 자체가 환각이다.
+- 볼트 레포가 아니면 제안하지 않는다(백로그가 없는 곳이다).
+
 ## 완료 보고
 
-- 무엇을 만들었는지(runDir 경로), PROMPT.md 핵심, 실행 결과 요약, 점검 통과/격차, target, DNA 버전.
+- 무엇을 만들었는지(runDir 경로), 어느 층으로 처리했는지(1층이면 쓴 템플릿 이름), PROMPT.md 핵심, 실행 결과 요약, 점검 통과/격차, target, DNA 버전.
 
 ## 금지
 
 - 대화·작업이 모두 비면 추측하지 말고 작업을 되묻는다.
 - 보유하지 않은 실데이터를 지어내지 않는다(`[확인 필요]`).
+- **승격된 라이브러리 템플릿의 본문을 즉석에서 고쳐 쓰지 않는다** — 검증을 무효화한다. 안 맞으면 2층으로 내려간다.
+- **볼트가 없는 곳에서 `--evolve`를 흉내내지 않는다** — 진화 루프는 원본 레포에만 있다.
 - 쓰기 불가 디렉토리면 스크래치로 폴백하고 실제 경로를 보고한다.
 - 실행 실패 시 부분 저장 + INSPECTION에 실패를 명시(성공 주장 금지).
