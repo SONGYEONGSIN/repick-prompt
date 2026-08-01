@@ -1,4 +1,16 @@
-# 후보 c — 결합형 표준(a)과 완전히 동일한 베이스에 완성 예시(multishot)만 추가한 통제 재검 후보
+---
+tags: ["template", "writing"]
+slug: "press-release"
+categoryId: "writing"
+title: "보도자료 작성"
+description: "발표할 핵심 사실과 인용문 소재만 넣으면, 표준 보도자료 구조(헤드라인·리드·본문·인용문·보일러플레이트)를 갖추고 raw 범위 밖 사실은 창작하지 않는 배포용 보도자료를 만듭니다."
+promoted: "2026-08-01-press-release"
+order: 32
+---
+
+# 보도자료 작성
+
+승격 [[2026-08-01-press-release/DECISION|라운드]]
 
 ## 필드
 
