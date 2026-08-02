@@ -166,25 +166,40 @@ if (!existsSync(LIB)) {
 //    창작·환각으로 오판하게 만든다. R1 재검·R11·R21 로 **세 번 재발**했고 SKILL.md 의
 //    산문 경고로는 세 번 다 막지 못했다 — 그래서 기계 검사로 올린다.
 //
-//    한계(의도적): 수치와 축자 인용만 본다. R21 의 '극단적 얼리어답터' 같은 순수 구절은
-//    못 잡는다. 필드 단위 n-gram 커버리지를 16개 라운드 전수로 실측해봤으나 오탐이
-//    압도적이었다 — values 에는 사실이 아닌 지시(예: tone "담백하고 솔직하게")도 들어 있어
-//    "모든 필드가 SCENARIO 에 있어야 한다"는 전제 자체가 틀렸다. 잡히는 것만 확실히 잡는다.
+//    한계(의도적): 수치와 축자 인용만 본다. R21 의 '극단적 얼리어답터', R23 의 성분 논란
+//    배경 같은 **순수 산문**은 못 잡는다(4회 재발 중 2회가 이 부류). 필드 단위 n-gram
+//    커버리지를 16개 라운드 전수로 실측해봤으나 오탐이 압도적이었다 — values 에는 사실이
+//    아닌 지시(예: tone "담백하고 솔직하게")도 들어 있어 "모든 필드가 SCENARIO 에 있어야
+//    한다"는 전제 자체가 틀렸다. 잡히는 것만 확실히 잡는다.
+//
+//    **조용한 건너뛰기 금지**: 초판은 `values.json` 하나만 찾고 없으면 continue 했다.
+//    R22·R23 이 `values-a.json` 식으로 쪼개 쓰자 그대로 무검사 통과했고, 하필 그 라운드에서
+//    4번째 재발이 났다. 검사가 "안 도는 것"과 "통과하는 것"은 구분돼야 한다.
 const SCEN_FACTS_FROM = '2026-07-26';
 const noComma = (s) => s.replaceAll(',', '');
+/** 중첩 구조와 무관하게 모든 문자열 잎을 모은다 — values.json(후보별 키) / values-a.json(평면) 양쪽 대응. */
+const stringLeaves = (x, out = []) => {
+  if (typeof x === 'string') out.push(x);
+  else if (x && typeof x === 'object') for (const v of Object.values(x)) stringLeaves(v, out);
+  return out;
+};
 for (const d of runDirs.filter((d) => d >= SCEN_FACTS_FROM)) {
-  const vp = join(VAULT, '20-generations', d, 'values.json');
-  const sp = join(VAULT, '20-generations', d, 'SCENARIO.md');
-  if (!existsSync(vp) || !existsSync(sp)) continue;
+  const runDir = join(VAULT, '20-generations', d);
+  const sp = join(runDir, 'SCENARIO.md');
+  if (!existsSync(sp)) continue; // 아직 SCENARIO 를 안 쓴 진행 중 라운드 — 미완결 경고가 따로 있다
+
+  const valueFiles = readdirSync(runDir).filter((f) => /^values.*\.json$/.test(f));
+  if (!valueFiles.length) {
+    fails.push(`SCENARIO 사실 대조 불가: ${d} — SCENARIO.md 는 있는데 values*.json 이 없다. 검사가 조용히 건너뛰지 않도록 실패로 알린다`);
+    continue;
+  }
 
   const scen = readFileSync(sp, 'utf8');
   const scenNoComma = noComma(scen);
   const missing = new Set();
 
-  for (const fields of Object.values(JSON.parse(readFileSync(vp, 'utf8')))) {
-    if (typeof fields !== 'object' || fields === null) continue;
-    for (const v of Object.values(fields)) {
-      if (typeof v !== 'string') continue;
+  for (const f of valueFiles) {
+    for (const v of stringLeaves(JSON.parse(readFileSync(join(runDir, f), 'utf8')))) {
       for (const m of v.matchAll(/\d[\d,]*(?:\.\d+)?/g)) {
         const n = noComma(m[0]);
         if (/^(19|20)\d{2}$/.test(n)) continue; // 연도는 SCENARIO 가 관례적으로 생략한다
@@ -199,10 +214,31 @@ for (const d of runDirs.filter((d) => d >= SCEN_FACTS_FROM)) {
 
   if (missing.size) {
     fails.push(
-      `SCENARIO 사실 누락: ${d} — ${[...missing].join(', ')} 가 values.json 에만 있다. ` +
+      `SCENARIO 사실 누락: ${d} — ${[...missing].join(', ')} 가 ${valueFiles.join('·')} 에만 있다. ` +
         `심사자는 SCENARIO 만 보고 대조하므로 정당한 문구를 창작으로 오판한다 — SCENARIO.md 에 명기하라`
     );
   }
+}
+
+// 10. 런 폴더 레이아웃 고정 (오늘 이후 라운드만)
+//     SKILL 이 candidates/·outputs/ 만 못박고 values·assembled 를 열어둬서 라운드마다 갈라졌다:
+//     R20·R21 은 values.json + assembled/, R22·R23 은 values-a.json + assembled-a.txt.
+//     그 드리프트가 검사 9 를 조용히 무력화했다(경로가 안 맞아 무검사 통과, 4번째 재발 허용).
+//     표준은 단일 파일(SCENARIO/SCORES/DECISION)과 디렉토리(candidates/outputs)의 기존 대비에 맞춘다.
+const LAYOUT_FROM = '2026-08-02';
+for (const d of runDirs.filter((d) => d >= LAYOUT_FROM)) {
+  const runDir = join(VAULT, '20-generations', d);
+  const names = readdirSync(runDir);
+  if (!names.includes('SCENARIO.md')) continue; // 진행 중 라운드
+
+  const stray = names.filter((f) => /^values-.+\.json$/.test(f) || /^assembled-.+\.txt$/.test(f));
+  if (stray.length) {
+    fails.push(
+      `런 폴더 레이아웃 위반: ${d} — ${stray.join(', ')}. 표준은 values.json(후보별 키를 가진 단일 파일)과 assembled/<variant>.txt 다`
+    );
+  }
+  if (!names.includes('values.json')) fails.push(`런 폴더 레이아웃 위반: ${d} — values.json 이 없다`);
+  if (!names.includes('assembled')) fails.push(`런 폴더 레이아웃 위반: ${d} — assembled/ 디렉토리가 없다`);
 }
 
 // 8. 후보 마크다운 형식 (새 라운드만 — 과거 라운드는 이력이라 소급하지 않는다)
