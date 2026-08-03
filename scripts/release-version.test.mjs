@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { readVersion, bumpVersion, writeVersion } from './release-version.mjs';
+import { readVersion, bumpVersion, writeVersion, nextPatch, bumpPatch } from './release-version.mjs';
 
 function tmpPlugin(obj) {
   const dir = mkdtempSync(join(tmpdir(), 'relver-'));
@@ -51,5 +51,28 @@ test('writeVersion은 끝에 개행을 남긴다', () => {
   const { dir, p } = tmpPlugin({ name: 'reprompt', version: '1.0.0' });
   writeVersion(p, '1.0.1');
   assert.ok(readFileSync(p, 'utf8').endsWith('}\n'));
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('nextPatch는 패치 자리만 1 올린다', () => {
+  assert.equal(nextPatch('1.2.0'), '1.2.1');
+  assert.equal(nextPatch('1.2.9'), '1.2.10');
+  assert.equal(nextPatch('0.0.0'), '0.0.1');
+});
+
+test('nextPatch는 major·minor를 건드리지 않는다', () => {
+  assert.equal(nextPatch('2.7.3'), '2.7.4');
+});
+
+test('nextPatch는 semver가 아니면 throw한다', () => {
+  assert.throws(() => nextPatch('1.2'), /semver/);
+  assert.throws(() => nextPatch('v1.2.3'), /semver/);
+  assert.throws(() => nextPatch(''), /semver/);
+});
+
+test('bumpPatch는 파일의 패치를 올리고 새 버전을 반환한다', () => {
+  const { dir, p } = tmpPlugin({ name: 'reprompt', version: '1.2.0' });
+  assert.equal(bumpPatch(p), '1.2.1');
+  assert.equal(readVersion(p), '1.2.1');
   rmSync(dir, { recursive: true, force: true });
 });
