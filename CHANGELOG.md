@@ -2,6 +2,14 @@
 
 이 프로젝트의 주요 변경을 기록합니다. 형식은 [Keep a Changelog](https://keepachangelog.com/ko/1.1.0/), 버전은 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## [1.2.1] - 2026-08-04
+
+### Added
+- **승격 템플릿 1종** — 채용 공고 작성(R24). 라이브러리 33종. `career` 카테고리에 처음으로 **고용주 관점** 템플릿이 들어왔다(기존 3종은 전부 구직자 관점).
+
+### Changed
+- 번들 DNA v1.22 — raw에 없는 세부 창작 금지 강화(채용 공고 도메인 재현).
+
 ## [1.2.0] - 2026-08-02
 
 ### Added
@@ -31,6 +39,7 @@
 - 실행환경 변환 4타깃: general / coding(Goal 중지요건 + Ultracode 제약) / image(구도·피사체·스타일·조명·카메라) / research(출처·범위·검증).
 - Claude Code 플러그인 패키징: `plugin/` 배포 단위 + 자체 마켓플레이스(`repick-prompt`), `${CLAUDE_SKILL_DIR}` 기반 이식성, 번들 DNA.
 
+[1.2.1]: https://github.com/SONGYEONGSIN/repick-prompt/releases/tag/reprompt--v1.2.1
 [1.2.0]: https://github.com/SONGYEONGSIN/repick-prompt/releases/tag/reprompt--v1.2.0
 [1.1.0]: https://github.com/SONGYEONGSIN/repick-prompt/releases/tag/reprompt--v1.1.0
 [1.0.0]: https://github.com/SONGYEONGSIN/repick-prompt/releases/tag/reprompt--v1.0.0

@@ -220,6 +220,25 @@ for (const d of runDirs.filter((d) => d >= SCEN_FACTS_FROM)) {
   }
 }
 
+// 11. plugin.json ↔ CHANGELOG 버전 일치
+//     배포물이 바뀌면 버전을 올려야 전달된다 — `claude plugin update`가 버전을 비교하기 때문이다.
+//     2026-08-04 실측: main 33종/DNA v1.22, 설치 캐시 32종/v1.21, plugin.json 미범프
+//     → "already at the latest version (1.2.0)". 새 템플릿이 영영 전달되지 않았다.
+//     버전만 올리고 CHANGELOG를 빠뜨리거나 그 반대인 경우를 여기서 잡는다.
+{
+  const pj = 'plugin/.claude-plugin/plugin.json';
+  const cl = 'CHANGELOG.md';
+  if (existsSync(pj) && existsSync(cl)) {
+    const pv = JSON.parse(readFileSync(pj, 'utf8')).version;
+    const cv = readFileSync(cl, 'utf8').match(/^## \[([\d.]+)\]/m)?.[1];
+    if (pv !== cv) {
+      fails.push(
+        `버전 불일치: ${pj} = ${pv} ≠ CHANGELOG 최상단 = ${cv ?? '없음'}. 승격은 배포물 변경이므로 patch를 올리고 CHANGELOG에 같은 버전 섹션을 연다 (RELEASING.md 버전 정책)`
+      );
+    }
+  }
+}
+
 // 10. 런 폴더 레이아웃 고정 (오늘 이후 라운드만)
 //     SKILL 이 candidates/·outputs/ 만 못박고 values·assembled 를 열어둬서 라운드마다 갈라졌다:
 //     R20·R21 은 values.json + assembled/, R22·R23 은 values-a.json + assembled-a.txt.

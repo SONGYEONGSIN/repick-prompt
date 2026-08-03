@@ -73,6 +73,11 @@ description: 프롬프트 진화 루프 1회 실행 — 볼트 지식으로 타�
   4. 새 카테고리가 필요하면 `vault/50-library/_categories.md`의 json 배열에 `{id, name}`을 추가한다.
   5. `node scripts/build-library.mjs` — `app/src/data/templates.generated.ts`가 갱신된다. **이 파일을 손으로 고치지 않는다.**
   6. `README.md`의 '현재 라이브러리' 줄(종수·카테고리 수)을 방금 실행한 `build-library.mjs` 출력으로 최신화한다.
+  7. **플러그인 버전 patch 범프 + CHANGELOG 한 줄** — 승격은 배포물(번들) 변경이므로 버전을 올리지 않으면 **기존 설치자에게 영영 전달되지 않는다**(`claude plugin update`가 버전을 비교한다, 2026-08-04 실측). `RELEASING.md` 버전 정책 참조 — 데이터 추가는 patch다.
+     ```bash
+     node -e "import('./scripts/release-version.mjs').then(m=>console.log(m.bumpPatch('plugin/.claude-plugin/plugin.json')))"
+     ```
+     `CHANGELOG.md` 최상단에 새 patch 섹션을 열고 `### Added`에 승격한 템플릿 1줄과 DNA 버전 변화를 적는다. **`plugin.json`과 CHANGELOG 최상단 버전이 어긋나면 `wiki-lint`가 FAIL한다.**
 - `node --experimental-strip-types scripts/export-references.mjs`… 는 실행하지 않는다 — 10-references는 외부 씨앗 전용, 생성물은 20-generations와 라이브러리에 남는다.
 - 검증 (순서 고정): `node scripts/build-plugin-bundle.mjs` → `node scripts/build-library.mjs` → `node scripts/wiki-lint.mjs` → `node --test scripts/lib/template-md.test.mjs scripts/build-library.test.mjs scripts/library-snapshot.test.mjs` → `cd app && npm run lint && npm run build`. wiki-lint는 깨진 위키링크·홈 체인 누락·ledger↔DECISION 정합·MEMORY 200줄 cap을 보고, 라이브러리 포맷(해부 4항목 이상·팁 2개 이상·토큰↔필드 양방향 일치·categoryId 유효)과 파생물 바이트 일치도 검사한다. 단 콘텐츠 손상은 wiki-lint로 못 잡으므로 node --test로 동결 스냅샷을 대조한다 — 셋 중 하나라도 건너뛰면 드리프트나 손상이 조용히 통과한다.
 - 완료 요약 보고: 무엇이 이겼는지, 결과물이 어땠는지, 원칙이 어떻게 바뀌었는지, 라이브러리 몇 종이 되었는지.

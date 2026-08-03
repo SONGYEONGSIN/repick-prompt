@@ -24,3 +24,26 @@ export function writeVersion(pluginJsonPath, newVersion) {
   const bumped = bumpVersion(obj, newVersion);
   writeFileSync(pluginJsonPath, JSON.stringify(bumped, null, 2) + '\n');
 }
+
+/**
+ * 패치 자리만 1 올린 semver 문자열을 반환한다.
+ * 진화 라운드 승격은 데이터 변경이라 patch다 (RELEASING.md 버전 정책).
+ */
+export function nextPatch(version) {
+  if (!SEMVER.test(version ?? '')) {
+    throw new Error(`nextPatch: semver(MAJOR.MINOR.PATCH) 형식이어야 합니다 (받음: ${version})`);
+  }
+  const [major, minor, patch] = version.split('.').map(Number);
+  return `${major}.${minor}.${patch + 1}`;
+}
+
+/**
+ * plugin.json의 패치를 올려 파일에 쓰고 새 버전을 반환한다.
+ * 무인 라운드가 매일 실행하므로 한 줄로 부를 수 있어야 한다 —
+ * 취약한 인라인 표현식을 SKILL에 적어두면 그게 실패 표면이 된다.
+ */
+export function bumpPatch(pluginJsonPath) {
+  const next = nextPatch(readVersion(pluginJsonPath));
+  writeVersion(pluginJsonPath, next);
+  return next;
+}
