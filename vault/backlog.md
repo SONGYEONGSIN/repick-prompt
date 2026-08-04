@@ -33,7 +33,7 @@ tags: [backlog, prompt]
 - [x] 서비스 FAQ 작성 → 2026-07-31-service-faq (R22)
 - [x] 보도자료 작성 → 2026-08-01-press-release (R23)
 - [x] 채용 공고 작성 → 2026-08-02-job-posting (R24)
-- [ ] 지표 리포트 해석 메모
+- [x] 지표 리포트 해석 메모 → 2026-08-04-metrics-report-memo (R25)
 - [ ] 사용자 리서치 질문 설계
 - [ ] 긴 자료 핵심 요약
 - [ ] 고객 온보딩 첫 안내
