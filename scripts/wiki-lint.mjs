@@ -220,6 +220,47 @@ for (const d of runDirs.filter((d) => d >= SCEN_FACTS_FROM)) {
   }
 }
 
+// 12. SCORES 내부 정합 — 축 평균 × 라운드 수 ≈ 라운드 합계
+//     심사 기록이 스스로와 어긋나면 승자 판단의 근거가 사라진다.
+//     2026-08-07 R28 실측: 라운드 합계 b 109 / c 86 / a 63 인데 축 평균 합은
+//     b 29.00 / c 28.67 / a 27.33 — c 만 맞고 b 는 22, a 는 19 어긋났다.
+//     축 표대로면 b·c 는 0.33점 차 사실상 동률인데 DECISION 은 "+23점 격차라
+//     사람 게이트 불필요"로 자동 채택했다. 근거가 없는 판단이 통과한 것이다.
+//     (승자 b 자체는 산출물로 재확인해 맞았다 — 틀린 건 점수 기록이다.)
+//     두 표가 함께 있을 때만 검사한다. 형식이 라운드마다 달라 소급 적용은 하지 않는다.
+const SCORES_COHERENT_FROM = '2026-08-08';
+for (const d of runDirs) {
+  if (d.slice(0, 10) < SCORES_COHERENT_FROM) continue;
+  const p = join(VAULT, '20-generations', d, 'SCORES.md');
+  if (!existsSync(p)) continue;
+  const src = readFileSync(p, 'utf8');
+  // 라운드별 합계: "| 1 | A=a, B=b, C=c | b 35 > c 30 > a 25 |"
+  const totals = {};
+  let rounds = 0;
+  for (const m of src.matchAll(/^\|\s*\d+\s*\|[^|]*\|([^|]*)\|/gm)) {
+    rounds++;
+    for (const s of m[1].matchAll(/([a-z])\s+(\d+(?:\.\d+)?)/g)) {
+      totals[s[1]] = (totals[s[1]] ?? 0) + Number(s[2]);
+    }
+  }
+  // 축 평균: "| a | 7.67 | 7.33 | 7.00 | 5.33 | 63 |"
+  const axis = {};
+  for (const m of src.matchAll(/^\|\s*([a-z])\s*\|((?:\s*\d+(?:\.\d+)?\s*\|){4})/gm)) {
+    const nums = [...m[2].matchAll(/\d+(?:\.\d+)?/g)].map((x) => Number(x[0]));
+    axis[m[1]] = nums.reduce((s, n) => s + n, 0);
+  }
+  if (!rounds || !Object.keys(axis).length) continue;
+  for (const [cand, sum] of Object.entries(axis)) {
+    if (totals[cand] === undefined) continue;
+    const expected = sum * rounds;
+    if (Math.abs(expected - totals[cand]) > rounds * 0.5) {
+      fails.push(
+        `SCORES 불일치: ${d} 후보 ${cand} — 축 평균 합 ${sum.toFixed(2)} × ${rounds}라운드 = ${expected.toFixed(1)} ≠ 라운드 합계 ${totals[cand]}. 심사 기록이 스스로와 어긋나면 승자 판단의 근거가 없다`
+      );
+    }
+  }
+}
+
 // 11. plugin.json ↔ CHANGELOG 버전 일치
 //     배포물이 바뀌면 버전을 올려야 전달된다 — `claude plugin update`가 버전을 비교하기 때문이다.
 //     2026-08-04 실측: main 33종/DNA v1.22, 설치 캐시 32종/v1.21, plugin.json 미범프
