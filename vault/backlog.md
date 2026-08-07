@@ -36,7 +36,7 @@ tags: [backlog, prompt]
 - [x] 지표 리포트 해석 메모 → 2026-08-04-metrics-report-memo (R25)
 - [x] 사용자 리서치 질문 설계 → 2026-08-05-research-questions (R26)
 - [x] 긴 자료 핵심 요약 → 2026-08-06-long-document-summary (R27)
-- [ ] 고객 온보딩 첫 안내
+- [x] 고객 온보딩 첫 안내 → 2026-08-07-customer-onboarding (R28)
 
 ### 타깃 선정 근거 (2026-07-31 보충, 라이브러리 30종 기준)
 
