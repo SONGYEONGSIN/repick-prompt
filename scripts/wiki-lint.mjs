@@ -61,6 +61,22 @@ for (const e of ledger) {
     fails.push(`ledger run에 DECISION 없음: ${e.run}`);
 }
 
+// 3b. ledger 필수 필드 — principle_delta
+//     LEARN 단계가 무엇을 배웠는지의 기록. 없으면 ledger 만 보고 "어느 라운드가
+//     어떤 원칙을 낳았나"를 추적할 수 없다 (DNA·DECISION 에는 남지만 대조가 끊긴다).
+//     2026-08-08 R29 실측: DNA 가 v1.26→v1.27 로 올라갔는데 ledger 항목에
+//     principle_delta 가 통째로 빠졌다. 29건 중 이 1건만 누락 — 나머지는 전부 있다.
+//     ledger 는 append-only 라 R29 를 소급 수정하지 않고 컷오프로 다음 라운드부터 건다.
+const LEDGER_FIELDS_FROM = '2026-08-09';
+for (const e of ledger) {
+  if (e.run.slice(0, 10) < LEDGER_FIELDS_FROM) continue;
+  if (!e.principle_delta || !String(e.principle_delta).trim()) {
+    fails.push(
+      `ledger 필수 필드 누락: ${e.run} — principle_delta 없음. LEARN 이 무엇을 배웠는지 기록이 비면 원칙과 라운드의 연결이 끊긴다`
+    );
+  }
+}
+
 // 4. MEMORY 200줄 cap
 const memLines = readFileSync(join(VAULT, '00-principles/MEMORY.md'), 'utf8').split('\n').length;
 if (memLines > 200) fails.push(`MEMORY.md ${memLines}줄 — 200줄 cap 초과`);
