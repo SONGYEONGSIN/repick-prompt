@@ -77,6 +77,44 @@ for (const e of ledger) {
   }
 }
 
+// 3c. 방향 가설 체크박스 ↔ 결과 줄 정합
+//     prompt-evolve 는 가설을 소비하면 `- [x]` 로 바꾸고 ` → <run-slug> (R<n>, 채택 여부)` 를 덧붙인다.
+//     결과 줄만 붙고 체크박스가 `- [ ]` 로 남으면, 다음 라운드가 소비 규칙("미검증 첫 번째")에 따라
+//     그 가설을 다시 집어 이미 결론 난 땅을 판다 — 라운드 하나가 통째로 헛돈다.
+//     2026-08-09 R30 실측: 가설이 채택돼 DNA v1.28 로 승격까지 끝났는데 체크박스가 안 넘어갔다
+//     (같은 커밋에서 타깃 쪽은 정상 `[x]`). ledger 와 달리 backlog 는 스킬이 상시 갱신하는
+//     작업 큐라 소급 수정이 가능하다 — 컷오프 없이 전량에 건다.
+const RESULT_RE = /→ (\d{4}-\d{2}-\d{2}-[\w-]+) \(R\d+/;
+const hyps = [];
+let curHyp = null;
+let inHyp = false;
+for (const line of readFileSync(join(VAULT, 'backlog.md'), 'utf8').split('\n')) {
+  if (/^## 방향 가설/.test(line)) {
+    inHyp = true;
+    continue;
+  }
+  if (!inHyp) continue;
+  if (/^## /.test(line)) break;
+  const head = line.match(/^- \[([ x])\] (.*)$/);
+  if (head) {
+    curHyp = {
+      checked: head[1] === 'x',
+      title: head[2].replace(/\*\*/g, '').slice(0, 50),
+      result: head[2].match(RESULT_RE)?.[1] ?? null,
+    };
+    hyps.push(curHyp);
+    continue;
+  }
+  if (curHyp && /^\s+- /.test(line)) curHyp.result ??= line.match(RESULT_RE)?.[1] ?? null;
+}
+for (const h of hyps) {
+  if (!h.checked && h.result) {
+    fails.push(
+      `방향 가설 미체크: "${h.title}" — 결과 줄(→ ${h.result})이 붙었는데 [ ] 로 남았다. 다음 라운드가 결론 난 가설을 재소비한다`
+    );
+  }
+}
+
 // 4. MEMORY 200줄 cap
 const memLines = readFileSync(join(VAULT, '00-principles/MEMORY.md'), 'utf8').split('\n').length;
 if (memLines > 200) fails.push(`MEMORY.md ${memLines}줄 — 200줄 cap 초과`);
