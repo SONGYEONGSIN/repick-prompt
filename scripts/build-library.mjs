@@ -61,6 +61,7 @@ export function buildLibrary(libDir) {
       throw new Error(`${path} — 모르는 categoryId: ${t.categoryId}`);
     }
     checkTokens(t, path);
+    checkOptionalOnlyLines(t, path);
   }
 
   entries.sort((a, b) => a.entry.order - b.entry.order);
@@ -76,6 +77,29 @@ function checkTokens(t, path) {
   }
   for (const k of keys) {
     if (!tokens.has(k)) throw new Error(`${path} — 본문에서 안 쓰이는 필드: ${k}`);
+  }
+}
+
+/**
+ * optional 토큰만 있는 줄은 그 필드를 비우면 조립 결과에서 통째로 사라진다
+ * (app/src/lib/prompt.ts shouldDropLine, scripts/prompt-loop.mjs assembleForTest 동일).
+ * "라벨: {{token}}" 값 줄은 사라지는 게 의도된 동작이라 예외로 둔다 (불릿 기호는 있어도 없어도 된다) —
+ * 요구사항 문장이 사라지면 안전망 지시가 소리 없이 없어지므로 막는다.
+ */
+function checkOptionalOnlyLines(t, path) {
+  const optional = new Set(t.fields.filter((f) => f.optional).map((f) => f.key));
+  for (const line of t.template.split('\n')) {
+    const tokens = [...line.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]);
+    if (tokens.length === 0) continue;
+    if (!tokens.every((k) => optional.has(k))) continue;
+    // 값을 나열하는 줄은 사라져도 된다 — 목록 항목이거나, 토큰을 지운 나머지가 "라벨:" 뿐인 줄.
+    // 번호 요구사항(`4. …`)과 산문은 여기 걸리지 않으므로 검사 대상으로 남는다.
+    const rest = line.replaceAll(/\{\{\w+\}\}/g, '');
+    if (/^\s*[-*]\s/.test(line) || /^\s*[^{}]*:\s*$/.test(rest)) continue;
+    throw new Error(
+      `${path} — optional 토큰만 있는 줄: ${tokens.map((k) => `{{${k}}}`).join(', ')} ` +
+        `(값이 비면 줄 전체가 사라진다 — 필수 토큰과 같은 줄에 두거나 토큰 없이 라벨로 지칭하세요)`
+    );
   }
 }
 
