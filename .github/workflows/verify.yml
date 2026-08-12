@@ -1,0 +1,51 @@
+name: 검증
+
+# 자율 라운드는 검증 실패를 무시하고도 PR을 만든다 — R32(#47)가 wiki-lint 실패 상태로 올라왔고
+# (소비된 방향 가설 체크박스 미처리), 그걸 막을 장치가 없어 사람 리뷰가 유일한 방어선이었다.
+# 루틴 프롬프트에 "실패하면 멈춰라"를 더 적는 대신, 로컬 검증 4단계를 여기 고정해
+# 실패가 PR에 표시로 남게 한다 — 지시가 아니라 인프라로 막는다.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      # 생성물이 볼트와 어긋난 채 커밋되는 것까지 함께 잡는다 — 손으로 고친 흔적은 재생성 후 diff 로 드러난다.
+      - name: 라이브러리 빌드 + 생성물 드리프트
+        run: |
+          node scripts/build-library.mjs
+          git diff --exit-code app/src/data/templates.generated.ts \
+            || { echo "::error::templates.generated.ts 가 볼트와 어긋났다 — node scripts/build-library.mjs 를 돌려 커밋하라"; exit 1; }
+
+      - name: wiki-lint
+        run: node scripts/wiki-lint.mjs
+
+      - name: 스크립트 테스트
+        run: node --test scripts/*.test.mjs
+
+      - name: 앱 의존성 설치
+        run: npm ci
+        working-directory: app
+
+      - name: 앱 lint
+        run: npm run lint
+        working-directory: app
+
+      - name: 앱 프로덕션 빌드
+        run: npm run build
+        working-directory: app
