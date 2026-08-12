@@ -15,18 +15,49 @@ LEDGER="${LEDGER:-vault/30-ledger/prompt-ledger.jsonl}"
 BACKLOG="${BACKLOG:-vault/backlog.md}"
 PR_STALE_DAYS="${PR_STALE_DAYS:-3}"     # 열린 evolve PR이 이만큼 방치되면 알림 (사람이 머지를 잊음)
 LEDGER_STALE_DAYS="${LEDGER_STALE_DAYS:-2}" # PR도 없는데 ledger가 이만큼 안 늘면 실패 의심
+GH_RETRIES="${GH_RETRIES:-3}"           # gh API 일시 오류 재시도 횟수
+GH_RETRY_DELAY="${GH_RETRY_DELAY:-5}"   # 재시도 간격(초) — 시도마다 배수로 늘어난다
 
 status=0
 say() { printf '%s\n' "$*"; }
 alert() { printf '::error::%s\n' "$*"; status=1; }
 
+# GitHub API는 간헐적으로 502를 낸다 — 그 한 번이 set -e 로 스크립트를 죽이면
+# "진화가 멈췄다"와 똑같은 신호(실패 메일)가 나가 워치독이 늑대소년이 된다.
+# 2026-08-12 05:36 실측: graphql 502 하나로 오탐 발생(run 31533772824), 당시 실제로는
+# 열린 PR 0일 경과라 정상 no-op 경로였다. 재시도로 흡수하고, 그래도 안 되면 호출자가
+# "점검 실패"로 구분해 알린다.
+# stderr 를 stdout 과 합치지 않는다 — gh 는 성공하면서도 경고를 stderr 로 뱉는다
+# (예: "Projects (classic) is being deprecated"). 합치면 그 경고가 JSON 에 섞여 jq 가 깨진다.
+gh_retry() {
+  local attempt=1 out err
+  err=$(mktemp)
+  while :; do
+    if out=$("$@" 2>"$err"); then
+      printf '%s' "$out"
+      rm -f "$err"
+      return 0
+    fi
+    if [ "$attempt" -ge "$GH_RETRIES" ]; then
+      cat "$err" >&2
+      rm -f "$err"
+      return 1
+    fi
+    sleep $(( attempt * GH_RETRY_DELAY ))
+    attempt=$(( attempt + 1 ))
+  done
+}
+
 # --- 1. 열린 evolve/* PR ---------------------------------------------------
 # 주의: `gh pr list --head 'evolve/'` 는 접두사 매칭이 아니라 정확 일치라 항상 0을 반환한다.
 #       (evolve/* PR 8개가 실재하는 상태에서 0을 돌려주는 것을 실측 확인, 2026-07-31)
 #       접두사로 거르려면 반드시 jq startswith 를 쓴다.
-open_prs=$(gh pr list --state open --json number,headRefName,createdAt \
+if ! open_prs=$(gh_retry gh pr list --state open --json number,headRefName,createdAt \
   --jq '[.[] | select(.headRefName | startswith("evolve/"))
-         | {number, branch: .headRefName, ageDays: ((now - (.createdAt | fromdateiso8601)) / 86400 | floor)}]')
+         | {number, branch: .headRefName, ageDays: ((now - (.createdAt | fromdateiso8601)) / 86400 | floor)}]'); then
+  alert "점검 실패 — GitHub API 호출이 ${GH_RETRIES}회 모두 실패했다. 진화 정체 여부는 확인하지 못했다(위 오류 참조). 이 알림은 '진화가 멈췄다'는 뜻이 아니다 — 재실행: gh workflow run evolve-watchdog.yml"
+  exit "$status"
+fi
 open_count=$(jq 'length' <<<"$open_prs")
 
 if [ "$open_count" -gt 0 ]; then
