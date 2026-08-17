@@ -13,7 +13,11 @@ set -euo pipefail
 # 경로·임계값은 env 로 덮어쓸 수 있다 — 각 분기를 실제로 실패시켜 봐야 워치독을 믿을 수 있다.
 LEDGER="${LEDGER:-vault/30-ledger/prompt-ledger.jsonl}"
 BACKLOG="${BACKLOG:-vault/backlog.md}"
-PR_STALE_DAYS="${PR_STALE_DAYS:-3}"     # 열린 evolve PR이 이만큼 방치되면 알림 (사람이 머지를 잊음)
+# 열린 evolve PR이 이만큼(일) 경과하면 알림.
+# 1인 이유: 0번 선행 가드는 PR이 열려 있으면 다음 라운드를 통째로 중단한다 — 하루만 방치되면
+# 이미 라운드 1회를 잃은 상태다. 3일이었을 때 R35 PR(#54)이 사흘 열려 있는 동안 워치독은 계속
+# success 를 냈고 그 사이 08-16·08-17 두 라운드가 조용히 스킵됐다(2026-08-17 실측).
+PR_STALE_DAYS="${PR_STALE_DAYS:-1}"
 LEDGER_STALE_DAYS="${LEDGER_STALE_DAYS:-2}" # PR도 없는데 ledger가 이만큼 안 늘면 실패 의심
 GH_RETRIES="${GH_RETRIES:-3}"           # gh API 일시 오류 재시도 횟수
 GH_RETRY_DELAY="${GH_RETRY_DELAY:-5}"   # 재시도 간격(초) — 시도마다 배수로 늘어난다
@@ -63,8 +67,9 @@ open_count=$(jq 'length' <<<"$open_prs")
 if [ "$open_count" -gt 0 ]; then
   oldest=$(jq 'max_by(.ageDays) | .ageDays' <<<"$open_prs")
   jq -r '.[] | "  #\(.number) \(.branch) — \(.ageDays)일 경과"' <<<"$open_prs"
-  if [ "$oldest" -gt "$PR_STALE_DAYS" ]; then
-    alert "열린 evolve PR이 ${oldest}일째 머지되지 않았다. 루틴은 선행 가드로 계속 no-op 하므로 진화가 멈춘 상태다 — 머지하거나 닫아라."
+  # -ge 다: "1일 경과"는 이미 그날 03:00 라운드가 가드에 막혔다는 뜻이므로 그 시점에 알려야 한다
+  if [ "$oldest" -ge "$PR_STALE_DAYS" ]; then
+    alert "열린 evolve PR이 ${oldest}일째 머지되지 않았다 — 그동안 라운드 약 ${oldest}회가 가드에 막혀 스킵됐다. 머지하거나 닫아라."
   else
     say "OK — 열린 evolve PR ${open_count}건(최장 ${oldest}일). 루틴은 정상적으로 no-op 한다. 사람 차례."
   fi
