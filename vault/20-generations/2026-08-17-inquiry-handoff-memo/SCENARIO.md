@@ -34,7 +34,7 @@ tags: [scenario, run]
 - next_agent 계열 필드: `이하늘, 주간 CS팀`
 - handoff_reason 계열 필드: 근무 교대(각 후보의 select 옵션 중 가장 가까운 값으로 매핑)
 - 인계 시점(candidate b의 handoff_now): `2026년 8월 17일 오전 9시`
-- 확인처(candidate a의 internal_resources / candidate c의 verification_contact / candidate b의 verification_channel): 결제팀(정산·환불 처리, 슬랙 #payment-ops), 필요 시 물류팀(파손 실사)
+- 확인처(candidate a의 internal_resources / candidate c의 verification_contact / candidate b의 verification_channel): 결제팀(정산·환불 처리, 슬랙 #payment-ops), 필요 시 물류팀(파손 실사). candidate c는 `최유나(전 담당자, 오늘 18시까지 연락 가능) 또는 결제팀 슬랙 채널 #payment-ops`를 그대로 입력값으로 받는다.
 - 확인 기한(candidate c의 verification_deadline): `다음 고객 접촉 전까지`
 
 ## 심사 배치 (순서 편향 통제)
