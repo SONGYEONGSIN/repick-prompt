@@ -380,6 +380,62 @@ for (const d of runDirs.filter((d) => d >= CAND_FROM)) {
   }
 }
 
+// 9. 심사 패킷 수치 누락 — values.json 의 수치가 SCENARIO 에 없으면 FAIL
+//     심사자는 SCENARIO 만 보고 대조하므로, values 에만 있는 수치는 결과물의 정당한 문구를
+//     창작으로 오판하게 만든다. R1·R11·R21·R23·R29·R35·R36 까지 같은 유형이 7번 재발했고,
+//     스킬 지시(§3 "SCENARIO 에는 values.json 의 모든 사실을 빠짐없이 명기")만으로는 막히지 않았다.
+//     소급 제외: 2026-07-12-work-report(c.period "2026년")·2026-07-13-cs-reply(c.signature "평일 10~18시")는
+//     실제 누락이지만 이미 심사가 끝난 이력이라 고쳐 쓰지 않는다.
+const SCENARIO_NUM_FROM = '2026-07-14';
+const NUM_RE = /\d[\d,]*(?:\.\d+)?\s*(?:%|만|억|천|원|명|건|시간|개월|시|분|일|주|년|배|위|점)?/g;
+const stripUnit = (t) => t.replace(/[%만억천원명건시간개월시분일주년배위점]+$/, '').trim();
+for (const d of runDirs.filter((x) => x.slice(0, 10) >= SCENARIO_NUM_FROM)) {
+  const runDir = join(VAULT, '20-generations', d);
+  const vp = join(runDir, 'values.json');
+  const sp = join(runDir, 'SCENARIO.md');
+  if (!existsSync(vp) || !existsSync(sp)) continue;
+  const scen = readFileSync(sp, 'utf8');
+  const scenBare = scen.replace(/,/g, '');
+  let values;
+  try {
+    values = JSON.parse(readFileSync(vp, 'utf8'));
+  } catch {
+    fails.push(`심사 패킷 검사 불가: ${vp} — values.json 파싱 실패`);
+    continue;
+  }
+  const missing = new Set();
+  for (const [cand, fields] of Object.entries(values)) {
+    if (!fields || typeof fields !== 'object') continue;
+    for (const [key, raw] of Object.entries(fields)) {
+      if (typeof raw !== 'string') continue;
+      for (const m of raw.matchAll(NUM_RE)) {
+        const tok = m[0].trim().replace(/[.,;:)\]}]+$/, '');
+        if (tok.length < 2 || !/\d/.test(tok)) continue;
+        const bare = stripUnit(tok);
+        if (scen.includes(tok)) continue;
+        if (bare && scen.includes(bare)) continue;
+        if (scenBare.includes(tok.replace(/,/g, ''))) continue;
+        missing.add(`${cand}.${key}="${tok}"`);
+      }
+    }
+  }
+  if (missing.size)
+    fails.push(
+      `심사 패킷 수치 누락: ${d} — ${[...missing].join(', ')} 가 SCENARIO.md 에 없다 (심사자가 창작으로 오판한다)`
+    );
+}
+
+// 10. SCORES 축별 합계표 필수 (도입 이후 라운드만)
+//     라운드 합과 축별 합이 함께 있어야 양방향 교차검증이 된다. R33~R35 가 이 형식을 썼고
+//     R36 에서 빠져 한 방향으로만 검산 가능해졌다. 과거 25 라운드는 형식이 제각각이라 소급하지 않는다.
+const AXIS_TABLE_FROM = '2026-08-18';
+for (const d of runDirs.filter((x) => x.slice(0, 10) >= AXIS_TABLE_FROM)) {
+  const p = join(VAULT, '20-generations', d, 'SCORES.md');
+  if (!existsSync(p)) continue;
+  if (!/축별/.test(readFileSync(p, 'utf8')))
+    fails.push(`SCORES 형식 위반: ${d} — 축별 합계표가 없다 (라운드 합과 교차검증 불가)`);
+}
+
 for (const w of warns) console.log('WARN', w);
 for (const f of fails) console.log('FAIL', f);
 console.log(
