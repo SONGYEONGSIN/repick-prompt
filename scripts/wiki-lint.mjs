@@ -115,6 +115,22 @@ for (const h of hyps) {
   }
 }
 
+// 3c. ledger 필수 필드 — metrics.judge_score
+//     라운드 간 점수 비교와 앱 데이터 생성이 이 키를 읽는다
+//     (app/src/app/commissioned/home-v2/build-data.mjs). 라운드마다 이름이 바뀌면
+//     소비자가 조용히 null 을 받는다. 2026-08-18 R37 실측: 31건이 judge_score 인데
+//     이 1건만 score 로 바꿔 써서 앱 카드의 심사 점수가 사라질 뻔했다.
+//     초기 5건(2026-07-15~07-20)은 metrics 자체가 없어 컷오프로 제외한다.
+const LEDGER_SCORE_FROM = '2026-07-21';
+for (const e of ledger) {
+  if (e.run.slice(0, 10) < LEDGER_SCORE_FROM) continue;
+  if (typeof e.metrics?.judge_score !== 'number') {
+    fails.push(
+      `ledger 필수 필드 누락: ${e.run} — metrics.judge_score 가 없다(다른 이름으로 쓰면 소비자가 조용히 null 을 받는다)`
+    );
+  }
+}
+
 // 4. MEMORY 200줄 cap
 const memLines = readFileSync(join(VAULT, '00-principles/MEMORY.md'), 'utf8').split('\n').length;
 if (memLines > 200) fails.push(`MEMORY.md ${memLines}줄 — 200줄 cap 초과`);
