@@ -145,3 +145,16 @@ macOS Chrome 이 창 최소 폭(~500px)을 강제해 **500px 레이아웃을 390
 - 실 라우트(`src/app/page.tsx`)로 이식할지 — 이식하면 4원칙 설명 섹션의 자리를 정해야 한다(목록 아래 또는 별도 화면)
 - `build-data.mjs` 를 `scripts/` 로 승격할지 — 지금은 주문 폴더 안에만 두어 불변식을 지켰다
 - 갤러리 미등재 상태 유지(기본값)
+
+## 데이터 갱신 (알아둘 것)
+
+`data.ts` 는 커밋된 생성물이라 **라운드가 늘어도 자동으로 갱신되지 않는다.** vault 가 앞서가면
+프로토타입만 옛 개수를 보여준다(2026-08-19 실측: vault 46종인데 data.ts 는 43종이었다).
+
+실 라우트로 이식할 때 `build-data.mjs` 를 `scripts/` 로 승격하고 CI 의 드리프트 검사
+(`build-library` 가 `templates.generated.ts` 에 하는 것과 같은 방식)에 넣어야 한다.
+프로토타입으로 남는 동안은 손으로 재생성한다:
+
+```bash
+node app/src/app/commissioned/home-v2/build-data.mjs
+```
