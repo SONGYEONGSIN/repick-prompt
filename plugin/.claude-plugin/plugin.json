@@ -1,6 +1,6 @@
 {
   "name": "reprompt",
-  "version": "1.2.14",
+  "version": "1.2.15",
   "description": "메타프롬프팅 스킬 — 대화 맥락을 프롬프트 DNA로 맞춤 프롬프트로 깎아 파일로 산출·실행·점검",
   "author": {
     "name": "SONGYEONGSIN",
