@@ -1,4 +1,16 @@
-# 후보 a — 결합형 표준: 문장 대조 카드 + 확인 필요 라우팅 + 첨언 역방향 스캔
+---
+tags: ["template","analysis"]
+slug: "translation-consistency-check"
+categoryId: "analysis"
+title: "번역·표기 일관성 점검표"
+description: "원문과 번역문을 문장 단위로 넣으면 정확/의미 변경/누락/표기·용어 불일치 넷으로 판정하고, 번역문 전체를 별도로 다시 훑어 원문에 없는 첨언까지 잡아냅니다. 판정이 애매한 항목과 첨언은 원 번역자에게 확인 요청으로 라우팅해, 게시 여부 결정은 앞지르지 않습니다."
+promoted: "2026-08-21-translation-consistency-check"
+order: 49
+---
+
+# 번역·표기 일관성 점검표
+
+승격 [[2026-08-21-translation-consistency-check/DECISION|라운드]]
 
 ## 필드
 
