@@ -1,12 +1,51 @@
 @import "tailwindcss";
 
+/* 「초고」 — 원고지에서 온 팔레트.
+   다크가 기본(먹지)이고, 시스템이 라이트면 종이로 바뀐다. 토글은 <html data-theme> 로 양방향을 이긴다.
+   액센트는 교정 주홍 한 색뿐 — 액센트가 쓰인 자리가 곧 손봐야 할 곳이다. */
 :root {
-  --bg: #0b0b0f;
-  --fg: #ffffff;
-  --mut: #a1a1aa;
-  --acc: #6e56cf;
-  --panel: #121218;
-  --line: rgba(255, 255, 255, 0.09);
+  --bg: #14151a;
+  --fg: #ece9e2;
+  --mut: #9a9ba3;
+  --acc: #e2705a;
+  --panel: #1b1d23;
+  --line: rgba(236, 233, 226, 0.16);
+  --line-soft: rgba(236, 233, 226, 0.08);
+  --warn: #e5a13a;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f2f1ec;
+    --fg: #16181c;
+    --mut: #5f6167;
+    --acc: #c0442a;
+    --panel: #fbfaf7;
+    --line: rgba(22, 24, 28, 0.14);
+    --line-soft: rgba(22, 24, 28, 0.07);
+    --warn: #8a5a05;
+  }
+}
+
+:root[data-theme="light"] {
+  --bg: #f2f1ec;
+  --fg: #16181c;
+  --mut: #5f6167;
+  --acc: #c0442a;
+  --panel: #fbfaf7;
+  --line: rgba(22, 24, 28, 0.14);
+  --line-soft: rgba(22, 24, 28, 0.07);
+  --warn: #8a5a05;
+}
+
+:root[data-theme="dark"] {
+  --bg: #14151a;
+  --fg: #ece9e2;
+  --mut: #9a9ba3;
+  --acc: #e2705a;
+  --panel: #1b1d23;
+  --line: rgba(236, 233, 226, 0.16);
+  --line-soft: rgba(236, 233, 226, 0.08);
   --warn: #e5a13a;
 }
 
@@ -17,6 +56,7 @@
   --color-acc: var(--acc);
   --color-panel: var(--panel);
   --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
   --color-warn: var(--warn);
   --font-sans: "Pretendard Variable", Pretendard, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", monospace;
@@ -30,7 +70,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 다크 배경에서 기본 아웃라인이 약하므로 accent focus 링을 전역 보장 */
+/* 액센트 focus 링 — 다크·라이트 양쪽에서 기본 아웃라인이 약하다 */
 :focus-visible {
   outline: 2px solid var(--acc);
   outline-offset: 2px;
@@ -38,7 +78,7 @@ body {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--acc) 45%, transparent);
+  background: color-mix(in srgb, var(--acc) 35%, transparent);
 }
 
 /* eyebrow / 캡션 / 스탯 — 트래킹 3단 스케일 */
@@ -52,11 +92,28 @@ body {
   letter-spacing: 0.12em;
 }
 
+/* 원고지 칸 — 배경 무늬가 아니라 레이아웃의 결 */
+.grid-paper {
+  background-image:
+    linear-gradient(to right, var(--line-soft) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line-soft) 1px, transparent 1px);
+  background-size: 148px 148px;
+  background-position: center top;
+}
+
+/* 교정 표시 — 아직 확인이 필요한 자리 */
+.needs-check {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: var(--acc);
+  text-underline-offset: 3px;
+}
+
 /* ghost 넘버 — 에디토리얼 밀도용 초대형 배경 숫자 */
 .ghost-num {
   font-weight: 800;
   line-height: 1;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.14);
+  -webkit-text-stroke: 1px var(--line);
   user-select: none;
 }

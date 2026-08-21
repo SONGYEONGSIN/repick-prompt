@@ -2,14 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Sun, Moon, Monitor, Plus, Minus } from "lucide-react";
-import type { Group, Item } from "../home-v2/data";
-import { routeTask, slotsFor } from "./route-match";
-import styles from "./chogo.module.css";
+import { ArrowRight, Plus, Minus } from "lucide-react";
+import type { Group, Item } from "@/data/landing.generated";
+import { routeTask, slotsFor } from "@/lib/route-match";
 
-type Theme = "system" | "light" | "dark";
-const NEXT_THEME: Record<Theme, Theme> = { system: "light", light: "dark", dark: "system" };
-const THEME_LABEL: Record<Theme, string> = { system: "시스템", light: "라이트", dark: "다크" };
 
 const SAMPLES = [
   "계약서가 우리 보안 요건을 지키는지 대조하고 싶어",
@@ -24,19 +20,7 @@ interface Props {
   withSample: number;
 }
 
-function Mark({ className }: { className?: string }) {
-  // 원고지 한 칸과, 그 칸에 그어진 교정 획
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className={className}>
-      <rect x="3" y="3" width="18" height="18" stroke="currentColor" strokeOpacity="0.4" strokeWidth="1.5" />
-      <path d="M7 15.5 L12.5 8" stroke="var(--mark)" strokeWidth="2.4" strokeLinecap="round" />
-      <path d="M12.5 8 L14.5 12" stroke="var(--mark)" strokeWidth="2.4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-export function Chogo({ groups, items, roundTotal, withSample }: Props) {
-  const [theme, setTheme] = useState<Theme>("system");
+export function Landing({ groups, items, roundTotal, withSample }: Props) {
   const [task, setTask] = useState(SAMPLES[0]);
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -53,47 +37,17 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
     [items]
   );
 
-  const ThemeIcon = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
   const needCount = slots.filter((s) => s.need).length;
 
   return (
-    <div className={styles.root} data-theme={theme === "system" ? undefined : theme}>
-      {/* ── 헤더 ─────────────────────────────────────────────────── */}
-      <header className="border-b" style={{ borderColor: "var(--rule)" }}>
-        <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6">
-          <span className="inline-flex items-center gap-2">
-            <Mark className="size-6" />
-            <span className="text-[17px] font-extrabold tracking-[-0.02em]">초고</span>
-            <span
-              className="ml-1 font-mono text-[10.5px] uppercase trk-caption"
-              style={{ color: "var(--ink-mut)" }}
-            >
-              草稿
-            </span>
-          </span>
-          <nav className="flex items-center gap-5">
-            <a href="#evidence" className="text-[13px]" style={{ color: "var(--ink-mut)" }}>
-              검증 기록
-            </a>
-            <button
-              type="button"
-              onClick={() => setTheme(NEXT_THEME[theme])}
-              className="grid size-9 place-items-center border"
-              style={{ borderColor: "var(--rule)", color: "var(--ink-mut)" }}
-              aria-label={`화면 테마: ${THEME_LABEL[theme]}. 눌러서 ${THEME_LABEL[NEXT_THEME[theme]]}(으)로 전환`}
-            >
-              <ThemeIcon className="size-4" aria-hidden="true" />
-            </button>
-          </nav>
-        </div>
-      </header>
+    <>
 
       {/* ── 1. 히어로 — 원고지 한 장 위에서 초고가 잡힌다 ───────────── */}
-      <section className="border-b" style={{ borderColor: "var(--rule)" }}>
+      <section className="border-b" style={{ borderColor: "var(--line)" }}>
         <div className="mx-auto max-w-[1120px] px-6 py-24">
           <p
             className="font-mono text-[11.5px] uppercase trk-caption"
-            style={{ color: "var(--mark)" }}
+            style={{ color: "var(--acc)" }}
           >
             원고지 1매 · 프롬프트 초고
           </p>
@@ -102,19 +56,19 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
           </h1>
           <p
             className="mt-6 max-w-[44ch] text-[17px] leading-relaxed"
-            style={{ color: "var(--ink-mut)" }}
+            style={{ color: "var(--mut)" }}
           >
             원하는 것을 한 줄로 적으세요. 네 칸으로 갈라 구조를 세우고,
-            <strong style={{ color: "var(--ink)" }}> 승인받기 전까지는 초고로 둡니다.</strong>
+            <strong style={{ color: "var(--fg)" }}> 승인받기 전까지는 초고로 둡니다.</strong>
           </p>
 
           {/* 원고지 — 입력 한 줄 + 네 칸 */}
-          <div className={`mt-10 ${styles.sheet}`}>
+          <div className={`mt-10 border border-line bg-panel`}>
             {/* 입력 행 */}
-            <div className="flex items-stretch border-b" style={{ borderColor: "var(--rule)" }}>
+            <div className="flex items-stretch border-b" style={{ borderColor: "var(--line)" }}>
               <span
-                className={`grid w-14 shrink-0 place-items-center border-r font-mono text-[11px] ${styles.gutter}`}
-                style={{ borderColor: "var(--rule-soft)" }}
+                className={`grid w-14 shrink-0 place-items-center border-r font-mono text-[11px] text-mut tabular-nums`}
+                style={{ borderColor: "var(--line-soft)" }}
                 aria-hidden="true"
               >
                 00
@@ -129,7 +83,7 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
                   onChange={(e) => setTask(e.target.value)}
                   placeholder="예: 계약서가 우리 보안 요건을 지키는지 대조하고 싶어"
                   className="w-full bg-transparent text-[clamp(17px,2.1vw,22px)] font-semibold outline-none"
-                  style={{ color: "var(--ink)" }}
+                  style={{ color: "var(--fg)" }}
                 />
               </div>
             </div>
@@ -137,18 +91,18 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
             {/* 판정 행 — 스킬의 1층/2층 라우팅을 그대로 표시한다 */}
             <div
               className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b px-5 py-3"
-              style={{ borderColor: "var(--rule-soft)" }}
+              style={{ borderColor: "var(--line-soft)" }}
             >
               <span
                 className="border px-2 py-0.5 font-mono text-[11px] tabular-nums"
                 style={{
-                  borderColor: routed.layer === 1 ? "var(--mark)" : "var(--rule)",
-                  color: routed.layer === 1 ? "var(--mark)" : "var(--ink-mut)",
+                  borderColor: routed.layer === 1 ? "var(--acc)" : "var(--line)",
+                  color: routed.layer === 1 ? "var(--acc)" : "var(--mut)",
                 }}
               >
                 {routed.layer === 1 ? "1층 · 검증된 뼈대" : "2층 · 새로 깎음"}
               </span>
-              <span className="font-mono text-[11.5px]" style={{ color: "var(--ink-mut)" }}>
+              <span className="font-mono text-[11.5px]" style={{ color: "var(--mut)" }}>
                 {routed.layer === 1 && routed.hit ? (
                   <>
                     {routed.hit.title} · R{routed.hit.round} 승격 ·{" "}
@@ -159,7 +113,7 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
                 )}
               </span>
               {needCount > 0 && (
-                <span className="ml-auto font-mono text-[11.5px]" style={{ color: "var(--mark)" }}>
+                <span className="ml-auto font-mono text-[11.5px]" style={{ color: "var(--acc)" }}>
                   확인 필요 <span className="tabular-nums">{needCount}</span>곳
                 </span>
               )}
@@ -170,22 +124,22 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
               {slots.map((s, i) => (
                 <li key={s.name} className="flex items-stretch">
                   <span
-                    className={`grid w-14 shrink-0 place-items-center border-r border-b font-mono text-[11px] ${styles.gutter}`}
-                    style={{ borderColor: "var(--rule-soft)" }}
+                    className={`grid w-14 shrink-0 place-items-center border-r border-b font-mono text-[11px] text-mut tabular-nums`}
+                    style={{ borderColor: "var(--line-soft)" }}
                     aria-hidden="true"
                   >
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <div className={`min-w-0 flex-1 px-5 py-4 ${styles.cell} ${styles.slotFill}`}>
+                  <div className={`min-w-0 flex-1 px-5 py-4 `}>
                     <p
                       className="font-mono text-[10.5px] uppercase trk-caption"
-                      style={{ color: "var(--ink-mut)" }}
+                      style={{ color: "var(--mut)" }}
                     >
                       {s.name}
                     </p>
                     <p className="mt-1.5 text-[15px] leading-relaxed">
-                      {s.need ? <span className={styles.needsCheck}>{s.text}</span> : s.text}
-                      {i === slots.length - 1 && <span className={styles.caret} aria-hidden="true" />}
+                      {s.need ? <span className={"needs-check"}>{s.text}</span> : s.text}
+                      {i === slots.length - 1 && <span className="inline-block w-0.5 h-[1em] align-[-0.15em] bg-acc" aria-hidden="true" />}
                     </p>
                   </div>
                 </li>
@@ -194,7 +148,7 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-2">
-            <span className="font-mono text-[11.5px]" style={{ color: "var(--ink-mut)" }}>
+            <span className="font-mono text-[11.5px]" style={{ color: "var(--mut)" }}>
               예시
             </span>
             {SAMPLES.map((s) => (
@@ -204,8 +158,8 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
                 onClick={() => setTask(s)}
                 className="border px-3 py-1 text-[12.5px]"
                 style={{
-                  borderColor: task === s ? "var(--mark)" : "var(--rule)",
-                  color: task === s ? "var(--mark)" : "var(--ink-mut)",
+                  borderColor: task === s ? "var(--acc)" : "var(--line)",
+                  color: task === s ? "var(--acc)" : "var(--mut)",
                 }}
               >
                 {s.length > 22 ? `${s.slice(0, 22)}…` : s}
@@ -216,37 +170,37 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
       </section>
 
       {/* ── 2. 승인 게이트 ──────────────────────────────────────── */}
-      <section className="border-b" style={{ borderColor: "var(--rule)" }}>
+      <section className="border-b" style={{ borderColor: "var(--line)" }}>
         <div className="mx-auto max-w-[1120px] px-6 py-24">
           <p
             className="font-mono text-[11.5px] uppercase trk-caption"
-            style={{ color: "var(--mark)" }}
+            style={{ color: "var(--acc)" }}
           >
             원고지 2매 · 승인 게이트
           </p>
           <h2 className="mt-4 max-w-[20ch] text-[clamp(26px,3.6vw,40px)] font-extrabold leading-[1.14] tracking-[-0.028em]">
             결과를 던지지 않고, 먼저 보여주고 묻습니다
           </h2>
-          <p className="mt-5 max-w-[54ch] text-[15.5px] leading-relaxed" style={{ color: "var(--ink-mut)" }}>
-            대부분의 도구는 결과만 줍니다. 초고는 실행 전에 <strong style={{ color: "var(--ink)" }}>무엇을 왜 그렇게
-            세웠는지</strong>와 <strong style={{ color: "var(--ink)" }}>스스로 세운 가정</strong>을 내놓고 승인을 받습니다.
+          <p className="mt-5 max-w-[54ch] text-[15.5px] leading-relaxed" style={{ color: "var(--mut)" }}>
+            대부분의 도구는 결과만 줍니다. 초고는 실행 전에 <strong style={{ color: "var(--fg)" }}>무엇을 왜 그렇게
+            세웠는지</strong>와 <strong style={{ color: "var(--fg)" }}>스스로 세운 가정</strong>을 내놓고 승인을 받습니다.
             여기서 고치면 다시 세웁니다.
           </p>
 
-          <div className="mt-9 grid gap-px" style={{ background: "var(--rule)" }}>
+          <div className="mt-9 grid gap-px" style={{ background: "var(--line)" }}>
             {[
               { k: "무엇을 썼나", v: "1층이면 어떤 승격본을 뼈대로 썼는지, 2층이면 어떤 DNA 장치를 배치했는지" },
               { k: "무엇을 지어냈나", v: "가진 자료가 아닌 것은 채우지 않고 [확인 필요]로 남깁니다" },
               { k: "무엇을 가정했나", v: "묻지 않고 넘어간 부분을 문장으로 적어 되돌릴 수 있게 합니다" },
             ].map((r, i) => (
-              <div key={r.k} className="grid gap-3 p-5 sm:grid-cols-[180px_1fr]" style={{ background: "var(--sheet)" }}>
+              <div key={r.k} className="grid gap-3 p-5 sm:grid-cols-[180px_1fr]" style={{ background: "var(--panel)" }}>
                 <p className="flex items-baseline gap-3">
-                  <span className="font-mono text-[11px] tabular-nums" style={{ color: "var(--mark)" }}>
+                  <span className="font-mono text-[11px] tabular-nums" style={{ color: "var(--acc)" }}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="text-[15px] font-semibold">{r.k}</span>
                 </p>
-                <p className="text-[14.5px] leading-relaxed" style={{ color: "var(--ink-mut)" }}>
+                <p className="text-[14.5px] leading-relaxed" style={{ color: "var(--mut)" }}>
                   {r.v}
                 </p>
               </div>
@@ -256,13 +210,13 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
       </section>
 
       {/* ── 3. 근거 — 이미 지어진 것들 ───────────────────────────── */}
-      <section className="border-b" style={{ borderColor: "var(--rule)" }}>
+      <section className="border-b" style={{ borderColor: "var(--line)" }}>
         <div className="mx-auto max-w-[1120px] px-6 py-24">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p
                 className="font-mono text-[11.5px] uppercase trk-caption"
-                style={{ color: "var(--mark)" }}
+                style={{ color: "var(--acc)" }}
               >
                 원고지 3매 · 검증된 뼈대
               </p>
@@ -273,31 +227,31 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
             <Link
               href="/commissioned/home-v2"
               className="inline-flex items-center gap-1.5 border px-4 py-2 text-[13px]"
-              style={{ borderColor: "var(--rule)" }}
+              style={{ borderColor: "var(--line)" }}
             >
               전체 보기
               <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>
           </div>
 
-          <ul className="mt-8 grid gap-px sm:grid-cols-2 lg:grid-cols-3" style={{ background: "var(--rule)" }}>
+          <ul className="mt-8 grid gap-px sm:grid-cols-2 lg:grid-cols-3" style={{ background: "var(--line)" }}>
             {items.slice(0, 6).map((it, i) => (
-              <li key={it.slug} className="min-w-0 p-5" style={{ background: "var(--sheet)" }}>
+              <li key={it.slug} className="min-w-0 p-5" style={{ background: "var(--panel)" }}>
                 <p className="flex items-baseline gap-3">
-                  <span className="font-mono text-[11px] tabular-nums" style={{ color: "var(--mark)" }}>
+                  <span className="font-mono text-[11px] tabular-nums" style={{ color: "var(--acc)" }}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="font-mono text-[10.5px] uppercase trk-caption" style={{ color: "var(--ink-mut)" }}>
+                  <span className="font-mono text-[10.5px] uppercase trk-caption" style={{ color: "var(--mut)" }}>
                     {groupName(it.group)}
                   </span>
                 </p>
                 <h3 className="mt-2 text-[16px] font-semibold leading-snug">
                   <Link href={`/p/${it.slug}`}>{it.title}</Link>
                 </h3>
-                <p className="mt-2 line-clamp-2 text-[13.5px] leading-relaxed" style={{ color: "var(--ink-mut)" }}>
+                <p className="mt-2 line-clamp-2 text-[13.5px] leading-relaxed" style={{ color: "var(--mut)" }}>
                   {it.desc}
                 </p>
-                <p className="mt-3 font-mono text-[10.5px] tabular-nums" style={{ color: "var(--ink-mut)" }}>
+                <p className="mt-3 font-mono text-[10.5px] tabular-nums" style={{ color: "var(--mut)" }}>
                   빈칸 {it.fields}
                   {it.round !== null && ` · R${it.round}`}
                   {it.score !== null && ` · 심사 ${it.score}/120`}
@@ -309,45 +263,45 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
       </section>
 
       {/* ── 4. 심사 기록 ────────────────────────────────────────── */}
-      <section id="evidence" className="border-b" style={{ borderColor: "var(--rule)" }}>
+      <section id="evidence" className="border-b" style={{ borderColor: "var(--line)" }}>
         <div className="mx-auto max-w-[1120px] px-6 py-24">
-          <p className="font-mono text-[11.5px] uppercase trk-caption" style={{ color: "var(--mark)" }}>
+          <p className="font-mono text-[11.5px] uppercase trk-caption" style={{ color: "var(--acc)" }}>
             원고지 4매 · 심사 기록
           </p>
           <h2 className="mt-4 max-w-[24ch] text-[clamp(26px,3.6vw,40px)] font-extrabold leading-[1.14] tracking-[-0.028em]">
             사용 후기 대신, 채점표를 공개합니다
           </h2>
-          <p className="mt-5 max-w-[56ch] text-[15.5px] leading-relaxed" style={{ color: "var(--ink-mut)" }}>
+          <p className="mt-5 max-w-[56ch] text-[15.5px] leading-relaxed" style={{ color: "var(--mut)" }}>
             후보 셋을 지어 AI 심사자 셋이 순서를 바꿔 세 번 블라인드로 채점하고, 이긴 것만 뼈대가 됩니다.
             진 후보의 결과물도 남아 있습니다.
           </p>
 
-          <ul className="mt-8 grid gap-px" style={{ background: "var(--rule)" }}>
+          <ul className="mt-8 grid gap-px" style={{ background: "var(--line)" }}>
             {history.map((it) => {
               const open = openId === it.slug;
               return (
-                <li key={it.slug} style={{ background: "var(--sheet)" }}>
+                <li key={it.slug} style={{ background: "var(--panel)" }}>
                   <button
                     type="button"
                     onClick={() => setOpenId(open ? null : it.slug)}
                     aria-expanded={open}
                     className="flex w-full items-center gap-4 px-5 py-4 text-left"
                   >
-                    <span className="font-mono text-[12px] tabular-nums" style={{ color: "var(--mark)" }}>
+                    <span className="font-mono text-[12px] tabular-nums" style={{ color: "var(--acc)" }}>
                       R{it.round}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[15px] font-semibold">{it.title}</span>
-                      <span className="mt-0.5 block font-mono text-[11px] tabular-nums" style={{ color: "var(--ink-mut)" }}>
+                      <span className="mt-0.5 block font-mono text-[11px] tabular-nums" style={{ color: "var(--mut)" }}>
                         심사 {it.score}/120
                       </span>
                     </span>
-                    <span className="grid size-7 shrink-0 place-items-center border" style={{ borderColor: "var(--rule)" }}>
+                    <span className="grid size-7 shrink-0 place-items-center border" style={{ borderColor: "var(--line)" }}>
                       {open ? <Minus className="size-3.5" aria-hidden="true" /> : <Plus className="size-3.5" aria-hidden="true" />}
                     </span>
                   </button>
                   {open && (
-                    <div className="border-t px-5 py-4" style={{ borderColor: "var(--rule-soft)" }}>
+                    <div className="border-t px-5 py-4" style={{ borderColor: "var(--line-soft)" }}>
                       <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words font-mono text-[12px] leading-relaxed">
                         {(it.sample ?? it.desc)
                           .split("\n")
@@ -362,7 +316,7 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
               );
             })}
           </ul>
-          <p className="mt-4 font-mono text-[12px]" style={{ color: "var(--ink-mut)" }}>
+          <p className="mt-4 font-mono text-[12px]" style={{ color: "var(--mut)" }}>
             <span className="tabular-nums">{withSample}</span>
             <span className="trk-stat">종은 실제 산출물이 그대로 남아 있습니다 · </span>
             <span className="tabular-nums">{roundTotal}</span>
@@ -381,31 +335,18 @@ export function Chogo({ groups, items, roundTotal, withSample }: Props) {
             <a
               href="#task"
               className="inline-flex items-center gap-2 px-6 py-3 text-[15px] font-semibold"
-              style={{ background: "var(--mark)", color: "var(--sheet)" }}
+              style={{ background: "var(--acc)", color: "var(--panel)" }}
             >
               원고지 열기
               <ArrowRight className="size-4" aria-hidden="true" />
             </a>
-            <span className="font-mono text-[12px]" style={{ color: "var(--ink-mut)" }}>
+            <span className="font-mono text-[12px]" style={{ color: "var(--mut)" }}>
               <span className="tabular-nums">0</span>
               <span className="trk-stat">원 · 로그인 없음</span>
             </span>
           </div>
         </div>
       </section>
-
-      <footer className="border-t" style={{ borderColor: "var(--rule)" }}>
-        <div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-3 px-6 py-8">
-          <span className="inline-flex items-center gap-2">
-            <Mark className="size-5" />
-            <span className="text-[14px] font-semibold">초고</span>
-          </span>
-          <p className="font-mono text-[11.5px]" style={{ color: "var(--ink-mut)" }}>
-            <span className="tabular-nums">{roundTotal}</span>
-            <span className="trk-stat">라운드째 스스로 고쳐 쓰는 중</span>
-          </p>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }

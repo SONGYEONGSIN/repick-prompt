@@ -1,4 +1,4 @@
-import type { Item } from "../home-v2/data";
+import type { Item } from "@/data/landing.generated";
 
 /**
  * 스킬 0단계의 "라이브러리 히트 판정"을 로컬에서 결정론적으로 흉내낸 것.
