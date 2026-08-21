@@ -1,12 +1,12 @@
-// 볼트(vault/)에서 홈 v2 프로토타입이 쓰는 데이터를 뽑아 data.ts 를 만든다.
+// 볼트(vault/)에서 랜딩·카탈로그가 쓰는 데이터를 뽑아 app/src/data/landing.generated.ts 를 만든다.
 // 카드에 붙는 "나오는 것"과 "실제 결과"는 지어낸 값이 아니라 전부 볼트 실물에서 온다.
-// 실행: node app/src/app/commissioned/home-v2/build-data.mjs
+// 실행: node scripts/build-landing-data.mjs   (CI 가 드리프트를 검사한다)
 import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(HERE, "..", "..", "..", "..", ".."); // app/src/app/commissioned/home-v2 → repo root
+const ROOT = join(HERE, ".."); // scripts/ → repo root
 const LIB = join(ROOT, "vault", "50-library");
 const GEN = join(ROOT, "vault", "20-generations");
 const LEDGER = join(ROOT, "vault", "30-ledger", "prompt-ledger.jsonl");
@@ -149,7 +149,7 @@ const groups = GROUP_NAMES.map(([id, name]) => ({
 
 const ts = [
   "// AUTO-GENERATED — vault/ 에서 생성됨. 직접 수정하지 마세요.",
-  "// 재생성: node app/src/app/commissioned/home-v2/build-data.mjs",
+  "// 재생성: node scripts/build-landing-data.mjs",
   "",
   "export interface Group {",
   "  id: string;",
@@ -178,7 +178,7 @@ const ts = [
   "",
 ].join("\n");
 
-writeFileSync(join(HERE, "data.ts"), ts);
+writeFileSync(join(ROOT, "app", "src", "data", "landing.generated.ts"), ts);
 console.log(
-  `✓ data.ts — 템플릿 ${items.length}종 / 그룹 ${groups.length}개 / 실제 산출물 ${items.filter((i) => i.sample).length}종`
+  `✓ landing.generated.ts — 템플릿 ${items.length}종 / 그룹 ${groups.length}개 / 실제 산출물 ${items.filter((i) => i.sample).length}종`
 );
