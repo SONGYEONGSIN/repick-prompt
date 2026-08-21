@@ -1,0 +1,69 @@
+당신은 원문과 번역문을 문장 단위로 대조하여 누락·의미 변경·표기·용어 불일치를 찾아내는 번역 품질 검토자입니다. 번역을 대신 고치는 사람이 아니라, 어긋난 지점을 정확히 짚어 실제로 고칠 수 있는 사람에게 넘기는 역할입니다. 이 점검표의 성패는 몇 문장을 훑었는지가 아니라, 원문에 있던 내용이 번역에서 조용히 사라지거나 뜻이 달라진 지점을 "그 정도는 자연스러운 의역이다"라고 스스로 넘기지 않고 하나하나 짚어내는 데 달려 있습니다.
+
+아래 정보를 바탕으로 번역·표기 일관성 점검표를 작성해주세요.
+- 원문 전체: 1. You may cancel your subscription at any time from your account settings.
+2. Cancellations made within 7 days of the renewal date will not be charged the renewal fee.
+3. After that period, a cancellation fee of 15% of the annual plan price applies.
+4. Refunds, if applicable, are processed within 10 business days to your original payment method.
+5. You must contact support at least 48 hours before your renewal date to be eligible for a partial refund.
+6. If your account is suspended for a violation of our Terms, no refund will be issued.
+7. Annual plan subscribers who downgrade to a monthly plan mid-term will not receive a refund for the unused annual period.
+8. This cancellation policy, including the 15% cancellation fee, does not apply to gift subscriptions purchased by a third party.
+- 번역문 전체: 1. 계정 설정에서 언제든지 구독을 취소할 수 있습니다.
+2. 갱신일로부터 7일 이내에 취소하시면 갱신 요금이 청구되지 않습니다.
+3. 이후에는 연간 요금제 금액의 5%에 해당하는 취소 수수료가 부과됩니다.
+5. 환불을 받으려면 고객센터에 연락하실 필요가 없습니다.
+6. 이용약관 위반으로 계정이 정지된 경우 환불이 제공되지 않습니다.
+7. 연간 요금제 구독자가 기간 중 월간 요금제로 다운그레이드하는 경우, 사용하지 않은 연간 기간에 대한 환불은 제공되지 않습니다.
+8. 본 해지 정책은(해지 수수료 15% 포함) 제3자가 구매한 선물용 구독에는 적용되지 않습니다.
+또한, 구독 해지 시 수집된 개인정보는 즉시 영구 삭제됩니다.
+- 언어 방향: 영어 원문 → 한국어 번역
+- 이 번역의 용도: FlowDesk 구독 해지·환불 정책 페이지 한국어판, 9/5 웹사이트 개편 배포 전 최종 검수
+- 대조 작성자: 정민서, 로컬라이제이션 매니저
+- 원 번역자: 김태우, 프리랜서 번역가
+- 확인 회신 기한: 9/4(목) 배포 전까지
+
+요구사항:
+1. 1. You may cancel your subscription at any time from your account settings.
+2. Cancellations made within 7 days of the renewal date will not be charged the renewal fee.
+3. After that period, a cancellation fee of 15% of the annual plan price applies.
+4. Refunds, if applicable, are processed within 10 business days to your original payment method.
+5. You must contact support at least 48 hours before your renewal date to be eligible for a partial refund.
+6. If your account is suspended for a violation of our Terms, no refund will be issued.
+7. Annual plan subscribers who downgrade to a monthly plan mid-term will not receive a refund for the unused annual period.
+8. This cancellation policy, including the 15% cancellation fee, does not apply to gift subscriptions purchased by a third party.를 문장 단위로 끊어 번호를 매기세요. 원문에 이미 번호가 있으면 그 번호를 그대로 쓰고, 없으면 등장 순서대로 1부터 매기세요. 번호를 다시 매기거나 ①②③ 같은 동그라미 숫자·기호로 바꾸지 마세요 — 대조 작성자와 번역자가 원문·번역문·이 표를 나란히 놓고 확인할 때 번호 체계가 뒤섞이면 어느 카드가 어느 문장인지 다시 찾아야 합니다.
+2. 원문 문장마다 대조 카드를 하나씩 만들어 "번호 / 원문 인용(그 문장 그대로) / 번역 인용(대응하는 번역 문장, 대응하는 문장이 전혀 없으면 "번역에 없음") / 판정"을 적으세요. 판정은 반드시 "정확 / 의미 변경 / 누락 / 표기·용어 불일치" 넷 중 하나로 표시하세요. 이 넷 중 무엇에 해당하는지 스스로 확신할 수 없는 항목은 짐작으로 욱여넣지 말고 "확인 필요"로 표시하고, 왜 판단이 어려운지 한 줄로 적으세요.
+3. "정확"과 "의미 변경"의 경계: 원문의 사실 정보(주체·수치·조건·긍정/부정)가 그대로 전달되고 표현 방식만 자연스럽게 달라졌다면 "정확"으로, 그 사실 정보 중 하나라도 달라지거나 빠졌다면 "의미 변경"으로 표시하세요. 문장을 풀어쓰거나 어순을 바꾼 것만으로 "의미 변경"으로 표시하지 마세요 — 표현 차이와 의미 차이를 구분하지 못하면 사소한 의역까지 오류로 몰아 정작 중요한 의미 변경이 그 사이에 파묻히기 때문입니다.
+4. "누락" 판정: 원문 문장에 대응하는 번역 문장이 전혀 없으면 "누락"으로 표시하세요. "의역이라 넘어갈 만하다"고 스스로 판단해 정확으로 표시하지 마세요 — 문장 전체가 아니라 조건절·수치·경고 문구 등 일부만 빠졌다면 그것은 "누락"이 아니라 "의미 변경"으로 표시하고, 무엇이 빠졌는지 사유란에 적으세요.
+5. "표기·용어 불일치" 판정: 지금까지 만든 카드에서 같은 원어 용어·고유명사가 이전 카드와 다르게 번역된 경우 표시하고, 그 용어가 처음 등장한 카드 번호를 사유란에 함께 적으세요. 카드 하나만 보고 표기·용어 불일치를 단정하지 마세요 — 문서 전체를 대조하기 전까지는 그 번역이 이 문서 안에서 일관된 표기인지 알 수 없기 때문입니다.
+6. 문장별 카드를 모두 완성한 뒤에는 1. 계정 설정에서 언제든지 구독을 취소할 수 있습니다.
+2. 갱신일로부터 7일 이내에 취소하시면 갱신 요금이 청구되지 않습니다.
+3. 이후에는 연간 요금제 금액의 5%에 해당하는 취소 수수료가 부과됩니다.
+5. 환불을 받으려면 고객센터에 연락하실 필요가 없습니다.
+6. 이용약관 위반으로 계정이 정지된 경우 환불이 제공되지 않습니다.
+7. 연간 요금제 구독자가 기간 중 월간 요금제로 다운그레이드하는 경우, 사용하지 않은 연간 기간에 대한 환불은 제공되지 않습니다.
+8. 본 해지 정책은(해지 수수료 15% 포함) 제3자가 구매한 선물용 구독에는 적용되지 않습니다.
+또한, 구독 해지 시 수집된 개인정보는 즉시 영구 삭제됩니다. 전체를 처음부터 다시 훑어, 원문의 어떤 문장과도 대응하지 않지만 번역문에만 있는 내용(첨언, 원문에 없는 예시·수치·경고의 추가, 과잉 설명)이 있는지 별도로 확인하세요. 원문→번역 방향의 정방향 대조만으로는 번역이 원문에 없는 내용을 더한 경우를 구조적으로 놓치기 때문입니다. 발견한 내용은 원문 문장 카드 안에 끼워 넣지 말고 별도 절로 모아, 번역 인용과 왜 원문에 대응하는 근거가 없다고 판단했는지를 적으세요.
+7. 1. You may cancel your subscription at any time from your account settings.
+2. Cancellations made within 7 days of the renewal date will not be charged the renewal fee.
+3. After that period, a cancellation fee of 15% of the annual plan price applies.
+4. Refunds, if applicable, are processed within 10 business days to your original payment method.
+5. You must contact support at least 48 hours before your renewal date to be eligible for a partial refund.
+6. If your account is suspended for a violation of our Terms, no refund will be issued.
+7. Annual plan subscribers who downgrade to a monthly plan mid-term will not receive a refund for the unused annual period.
+8. This cancellation policy, including the 15% cancellation fee, does not apply to gift subscriptions purchased by a third party.와 1. 계정 설정에서 언제든지 구독을 취소할 수 있습니다.
+2. 갱신일로부터 7일 이내에 취소하시면 갱신 요금이 청구되지 않습니다.
+3. 이후에는 연간 요금제 금액의 5%에 해당하는 취소 수수료가 부과됩니다.
+5. 환불을 받으려면 고객센터에 연락하실 필요가 없습니다.
+6. 이용약관 위반으로 계정이 정지된 경우 환불이 제공되지 않습니다.
+7. 연간 요금제 구독자가 기간 중 월간 요금제로 다운그레이드하는 경우, 사용하지 않은 연간 기간에 대한 환불은 제공되지 않습니다.
+8. 본 해지 정책은(해지 수수료 15% 포함) 제3자가 구매한 선물용 구독에는 적용되지 않습니다.
+또한, 구독 해지 시 수집된 개인정보는 즉시 영구 삭제됩니다.에 실제로 없는 오류를 만들어내지 마세요. 두 원문에 근거가 없는 대응 관계, 존재하지 않는 표현, 실제로 없는 표기 규칙 위반을 지어내 카드에 채우지 마세요.
+8. 이 표는 정민서, 로컬라이제이션 매니저가 작성하지만, 이 번역을 게시할지·언제 수정할지를 최종 결정하는 사람이 아닙니다. 문서 맨 위에는 판정별 건수 집계 한 줄만 두고, 게시해도 되는지·수정이 얼마나 시급한지 같은 권고나 결론 문장은 넣지 마세요 — 대조 작성자가 상단에서 그 판단까지 앞질러 단정하면 실제로 게시 여부를 정할 사람의 역할을 침범하게 됩니다.
+9. "의미 변경" · "누락" · "표기·용어 불일치" · "확인 필요"로 표시한 카드와, 6번에서 찾은 첨언 항목만 모아 김태우, 프리랜서 번역가에게 보낼 확인·수정 요청 목록을 만드세요. 각 줄에 카드 번호(첨언 항목은 "첨언-1"처럼 별도 표시)·무엇이 문제인지 한 줄 요약·왜 확인이 필요한지를 적으세요. 9/4(목) 배포 전까지이 있으면 그 기한을, 없으면 "가급적 빠른 시일 내"라고 적으세요. "정확"으로 표시한 카드는 이 목록에 넣지 마세요 — 모두 넣으면 번역자가 문제 없는 문장 사이에서 진짜 고쳐야 할 곳을 다시 걸러내야 합니다.
+
+출력 형식:
+- 한 줄 집계 요약 (전체 문장 N개 중 정확 N · 의미 변경 N · 누락 N · 표기·용어 불일치 N · 확인 필요 N — 권고 문장 없음)
+- 문장별 대조 카드 (각 카드: 번호 · 원문 인용 · 번역 인용 또는 "번역에 없음" · 판정 · 사유 한 줄)
+- 역방향 스캔: 원문에 없는 첨언 (있으면 각 줄에 번역 인용과 판단 근거, 없으면 "발견된 첨언 없음")
+- 확인·수정 요청 목록 (김태우, 프리랜서 번역가 앞, 각 줄: 카드 번호 · 문제 요약 · 확인이 필요한 이유 · 기한)
