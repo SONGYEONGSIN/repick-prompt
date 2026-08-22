@@ -200,7 +200,7 @@ export function Builder({ template }: { template: PromptTemplate }) {
                               {seg.value}
                             </span>
                           ) : seg.filled ? (
-                            <mark key={j} className="rounded bg-acc/25 px-1 text-fg">
+                            <mark key={j} className="rounded bg-fg/10 px-1 text-fg">
                               {seg.value}
                             </mark>
                           ) : (

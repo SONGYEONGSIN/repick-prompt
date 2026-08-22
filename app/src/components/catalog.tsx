@@ -2,19 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import {
-  Search,
-  X,
-  ChevronDown,
-  ArrowRight,
-  ArrowUpRight,
-  Sparkles,
-  Sun,
-  Moon,
-  Monitor,
-} from "lucide-react";
-import type { Group, Item } from "./data";
-import styles from "./home-v2.module.css";
+import { Search, X, ChevronDown, ArrowRight, ArrowUpRight } from "lucide-react";
+import type { Group, Item } from "@/data/landing.generated";
 
 const PAGE = 12;
 
@@ -25,10 +14,7 @@ const SORTS = [
 ] as const;
 
 type SortId = (typeof SORTS)[number]["id"];
-type Theme = "system" | "light" | "dark";
 
-const NEXT_THEME: Record<Theme, Theme> = { system: "light", light: "dark", dark: "system" };
-const THEME_LABEL: Record<Theme, string> = { system: "시스템 설정", light: "라이트", dark: "다크" };
 
 /** 검색창이 비어 있으면 초보자는 무엇을 칠지 모른다 — 실제 템플릿을 가리키는 예시를 준다 */
 const EXAMPLES = ["보고서", "응대 메일", "회의 정리", "이미지"];
@@ -36,7 +22,6 @@ const EXAMPLES = ["보고서", "응대 메일", "회의 정리", "이미지"];
 interface Props {
   groups: Group[];
   items: Item[];
-  roundTotal: number;
   withSample: number;
 }
 
@@ -53,12 +38,11 @@ function previewLines(item: Item, limit: number): string[] {
   return [item.desc];
 }
 
-export function HomeV2({ groups, items, roundTotal, withSample }: Props) {
+export function Catalog({ groups, items, withSample }: Props) {
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState<string | null>(null);
   const [sort, setSort] = useState<SortId>("recent");
   const [shown, setShown] = useState(PAGE);
-  const [theme, setTheme] = useState<Theme>("system");
   const [preview, setPreview] = useState<Item | null>(null);
 
   // 드로어가 열려 있을 때 Esc 로 닫는다 — 키보드만 쓰는 사람의 탈출구
@@ -96,7 +80,6 @@ export function HomeV2({ groups, items, roundTotal, withSample }: Props) {
 
   const visible = filtered.slice(0, shown);
   const hasFilter = Boolean(query.trim() || group);
-  const ThemeIcon = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
 
   function reset() {
     setQuery("");
@@ -105,55 +88,30 @@ export function HomeV2({ groups, items, roundTotal, withSample }: Props) {
   }
 
   return (
-    <div
-      className={styles.root}
-      data-theme={theme === "system" ? undefined : theme}
-    >
+    <div className="relative">
       <div className="relative">
-        <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${styles.gridBg}`} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 grid-paper" />
 
         <div className="relative">
-          {/* ── 헤더 ─────────────────────────────────────────────── */}
-          <header className="border-b border-line">
-            <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6">
-              <Link href="/" className="font-bold tracking-tight">
-                RE:<span className="text-acc">PROMPT</span>
-              </Link>
-              <div className="flex items-center gap-4">
-                <Link href="/" className="text-[13px] text-mut hover:text-fg">
-                  기존 홈
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => setTheme(NEXT_THEME[theme])}
-                  className="grid size-9 place-items-center rounded-full border border-line text-mut hover:text-fg"
-                  aria-label={`화면 테마: ${THEME_LABEL[theme]}. 눌러서 ${THEME_LABEL[NEXT_THEME[theme]]}(으)로 전환`}
-                >
-                  <ThemeIcon className="size-4" aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-          </header>
 
-          {/* ── 히어로 ───────────────────────────────────────────── */}
+          {/* ── 목록 머리말 — 랜딩이 아니라 고르는 화면이다 ──────── */}
           <section className="border-b border-line">
-            <div className="mx-auto max-w-[1120px] px-6 pb-10 pt-12 text-center">
-              <p className="inline-flex items-center gap-2 rounded-full border border-line bg-panel px-3.5 py-1.5 font-mono text-[11.5px] uppercase text-mut trk-caption">
-                <Sparkles className="size-3.5 text-acc" aria-hidden="true" />
-                AI 초보자를 위한 프롬프트 빌더
+            <div className="mx-auto max-w-[1120px] px-6 pb-8 pt-12">
+              <p className="font-mono text-[11.5px] uppercase text-acc trk-caption">
+                검증된 뼈대
+              </p>
+              <h1 className="mt-4 text-[clamp(28px,4vw,44px)] font-extrabold leading-[1.12] tracking-[-0.03em]">
+                무엇이 나오는지 먼저 보고 고르세요
+              </h1>
+              <p className="mt-4 max-w-[52ch] text-[15.5px] leading-relaxed text-mut">
+                템플릿 {items.length}종. 카드에 그 템플릿이 실제로 만들어낸 결과가 붙어 있습니다.
               </p>
 
-              <h1 className="mt-5 text-[clamp(34px,5.4vw,58px)] font-bold leading-[1.12] tracking-[-0.03em]">
-                좋은 프롬프트는
-                <br />
-                재능이 아니라 <span className="text-acc">구조</span>다
-              </h1>
-
-              <div className="mx-auto mt-7 max-w-[620px]">
+              <div className="mt-7 max-w-[620px]">
                 <label htmlFor="q" className="sr-only">
                   템플릿 검색
                 </label>
-                <div className="flex items-center gap-2 rounded-full border border-line bg-panel py-2 pl-5 pr-2 text-left focus-within:border-acc">
+                <div className="flex items-center gap-2 rounded-full border border-line bg-panel py-2 pl-5 pr-2 focus-within:border-acc">
                   <Search className="size-[18px] shrink-0 text-mut" aria-hidden="true" />
                   <input
                     id="q"
@@ -178,14 +136,14 @@ export function HomeV2({ groups, items, roundTotal, withSample }: Props) {
                   ) : (
                     <span
                       aria-hidden="true"
-                      className="grid size-9 shrink-0 place-items-center rounded-full bg-acc text-white"
+                      className="grid size-9 shrink-0 place-items-center rounded-full bg-acc text-bg"
                     >
                       <ArrowRight className="size-4" />
                     </span>
                   )}
                 </div>
 
-                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <div className="mt-4 flex flex-wrap items-center gap-2">
                   {EXAMPLES.map((ex) => (
                     <button
                       key={ex}
@@ -201,18 +159,6 @@ export function HomeV2({ groups, items, roundTotal, withSample }: Props) {
                   ))}
                 </div>
               </div>
-
-              {/* 기준 사이트의 "3/3 free this week" 자리 — 숫자는 전부 볼트 실측값 */}
-              <p className="mx-auto mt-6 inline-flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 rounded-full border border-line bg-panel px-4 py-1.5 font-mono text-[11.5px] text-mut">
-                <span className="tabular-nums text-fg">{roundTotal}</span>
-                <span className="trk-stat">라운드 진화</span>
-                <span aria-hidden="true">·</span>
-                <span className="text-fg">AI 3심</span>
-                <span className="trk-stat">블라인드 심사</span>
-                <span aria-hidden="true">·</span>
-                <span className="tabular-nums text-fg">0</span>
-                <span className="trk-stat">원 · 로그인 없음</span>
-              </p>
             </div>
           </section>
 
@@ -343,7 +289,7 @@ export function HomeV2({ groups, items, roundTotal, withSample }: Props) {
                         </pre>
                         <div
                           aria-hidden="true"
-                          className={`absolute inset-x-0 bottom-0 h-16 ${styles.previewFade}`}
+                          className={`absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-bg to-transparent`}
                         />
                       </div>
 
@@ -419,7 +365,12 @@ export function HomeV2({ groups, items, roundTotal, withSample }: Props) {
               </>
             )}
 
-            {hasFilter && filtered.length > 0 && (
+            <p className="mt-10 text-center font-mono text-[12px] text-mut">
+            <span className="tabular-nums">{withSample}</span>
+            <span className="trk-stat">종은 카드 미리보기가 실제 심사 산출물입니다</span>
+          </p>
+
+          {hasFilter && filtered.length > 0 && (
               <p className="mt-6 text-center text-[13px] text-mut">
                 <button type="button" onClick={reset} className="hover:text-fg hover:underline">
                   필터 모두 지우기
@@ -428,14 +379,6 @@ export function HomeV2({ groups, items, roundTotal, withSample }: Props) {
             )}
           </section>
 
-          <footer className="border-t border-line">
-            <div className="mx-auto max-w-[1120px] px-6 py-8 text-center font-mono text-[12px] text-mut">
-              <span className="tabular-nums">{withSample}</span>
-              <span className="trk-stat">종은 미리보기가 실제 심사 산출물입니다 · </span>
-              <span className="tabular-nums">{roundTotal}</span>
-              <span className="trk-stat">라운드 진화 기록</span>
-            </div>
-          </footer>
         </div>
       </div>
 
@@ -452,7 +395,7 @@ export function HomeV2({ groups, items, roundTotal, withSample }: Props) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="pv-title"
-            className={`relative m-4 flex max-h-[82vh] w-full max-w-[720px] flex-col overflow-hidden rounded-2xl border border-line bg-panel ${styles.drawer}`}
+            className={`relative m-4 flex max-h-[82vh] w-full max-w-[720px] flex-col overflow-hidden rounded-2xl border border-line bg-panel `}
           >
             <div className="flex items-start justify-between gap-4 border-b border-line p-5">
               <div className="min-w-0">

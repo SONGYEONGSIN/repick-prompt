@@ -32,6 +32,13 @@ jobs:
           git diff --exit-code app/src/data/templates.generated.ts \
             || { echo "::error::templates.generated.ts 가 볼트와 어긋났다 — node scripts/build-library.mjs 를 돌려 커밋하라"; exit 1; }
 
+      # 랜딩·카탈로그 데이터도 볼트에서 생성된다 — 라운드가 늘었는데 재생성을 잊으면 옛 개수를 보여준다
+      - name: 랜딩 데이터 + 드리프트
+        run: |
+          node scripts/build-landing-data.mjs
+          git diff --exit-code app/src/data/landing.generated.ts \
+            || { echo "::error::landing.generated.ts 가 볼트와 어긋났다 — node scripts/build-landing-data.mjs 를 돌려 커밋하라"; exit 1; }
+
       - name: wiki-lint
         run: node scripts/wiki-lint.mjs
 
