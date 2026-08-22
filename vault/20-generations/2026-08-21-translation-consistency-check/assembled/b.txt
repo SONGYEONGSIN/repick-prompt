@@ -1,0 +1,56 @@
+당신은 원문과 번역문을 대조해 누락·의미 변경·용어 불일치를 점검하는 번역 QA 감사관입니다. 이 표의 성패는 문장 하나하나가 "오역은 아님"으로 개별 통과하는 것이 아니라, 문서 전체에서 같은 용어가 처음부터 끝까지 일관되게 번역됐는지까지 잡아내는 데 달려 있습니다 — 문장을 하나씩 따로 보면 각 문장이 그 자체로는 자연스러워 보여도, 같은 원어 표현이 문서 곳곳에서 서로 다르게 번역된 사실은 문장 단위 대조만으로는 드러나지 않기 때문입니다.
+
+아래 정보를 바탕으로 번역·표기 일관성 점검표를 작성해주세요.
+- 검증 대상 문서: FlowDesk 구독 해지·환불 정책 페이지 한국어판 v2
+- 번역 작성자: 김태우, 프리랜서 번역가
+- 검수자: 정민서, 로컬라이제이션 매니저
+- 원문 전체: 1. You may cancel your subscription at any time from your account settings.
+2. Cancellations made within 7 days of the renewal date will not be charged the renewal fee.
+3. After that period, a cancellation fee of 15% of the annual plan price applies.
+4. Refunds, if applicable, are processed within 10 business days to your original payment method.
+5. You must contact support at least 48 hours before your renewal date to be eligible for a partial refund.
+6. If your account is suspended for a violation of our Terms, no refund will be issued.
+7. Annual plan subscribers who downgrade to a monthly plan mid-term will not receive a refund for the unused annual period.
+8. This cancellation policy, including the 15% cancellation fee, does not apply to gift subscriptions purchased by a third party.
+- 번역문 전체: 1. 계정 설정에서 언제든지 구독을 취소할 수 있습니다.
+2. 갱신일로부터 7일 이내에 취소하시면 갱신 요금이 청구되지 않습니다.
+3. 이후에는 연간 요금제 금액의 5%에 해당하는 취소 수수료가 부과됩니다.
+5. 환불을 받으려면 고객센터에 연락하실 필요가 없습니다.
+6. 이용약관 위반으로 계정이 정지된 경우 환불이 제공되지 않습니다.
+7. 연간 요금제 구독자가 기간 중 월간 요금제로 다운그레이드하는 경우, 사용하지 않은 연간 기간에 대한 환불은 제공되지 않습니다.
+8. 본 해지 정책은(해지 수수료 15% 포함) 제3자가 구매한 선물용 구독에는 적용되지 않습니다.
+또한, 구독 해지 시 수집된 개인정보는 즉시 영구 삭제됩니다.
+- 확인 필요 항목 회신 기한: 9/4(목) 배포 전까지
+
+요구사항:
+1. 원문과 번역문의 문장을 원문에 매겨진 번호(또는 등장 순서)대로 하나씩 대응시키세요. 원문 문장 하나가 번역에서 여러 문장으로 쪼개졌거나 반대로 여러 문장이 하나로 합쳐졌다면 그 대응 관계를 그대로 적고, 번역문 어디에도 대응하는 부분이 없으면 "대응 없음(누락)"이라고 표시하세요.
+2. 가장 먼저 용어집 대조부터 하세요. 용어집이 제공되지 않았다면 이 단계는 "제공된 용어집 없음"이라고만 표시하고 다음 단계로 넘어가세요 — 용어집이 없다고 다음 단계(문서 내부 자기 불일치 확인)까지 생략하지 마세요.
+3. 이제 번역문 전체를 다시 훑어, 같은 원어 표현(고유명사·핵심 용어 포함)이 문서 안에서 서로 다르게 번역된 사례가 있는지 찾으세요 — 앞 단계에서 이미 용어집 위반으로 표시한 표현은 여기서 제외합니다. 문장 하나씩 따로 대조해서는 각 문장이 개별적으로 자연스러워 보여 이런 불일치가 드러나지 않으므로, 반복 등장하는 용어 후보 관점에서 번역문 전체를 별도로 다시 훑어야 합니다. 발견하면 "문서 내부 자기 불일치"로 표시하고, 그 표현이 등장한 문장 번호와 각 자리에서 실제로 어떻게 번역됐는지 모두 나열하세요. 이 단계는 용어집 유무와 무관하게 항상 수행하세요 — 용어집이 없던 표현일수록 이 단계가 아니면 잡히지 않습니다.
+4. 용어집 위반이나 문서 내부 자기 불일치로 이미 표시한 문장은, 문장 단위 대조 카드에서 같은 문제를 다시 "오역"으로 중복 판정하지 마세요. 그 문장의 판정란에는 "용어 불일치 — 용어 대조표 참고"라고만 적어, 같은 문제를 서로 다른 표가 다른 말로 두 번 지적하지 않게 하세요.
+5. 문장 단위 대조 카드는 원문 인용과 번역 인용을 나란히 놓고, 판정을 "정확 / 의미 변경 / 누락 / 오역(용어 불일치 제외)" 중 하나로만 표시하세요. 원문 문장이 번역에 아예 대응하지 않으면 그 정보가 아무리 사소해 보여도 반드시 "누락"으로 표시하세요 — 문장 하나가 통째로 빠진 것을 "그 정도는 의역 범위"라고 스스로 판단해 등급을 낮추지 마세요. 반대로 조사·어순·존댓말처럼 의미가 그대로인 표현 차이를 "의미 변경"으로 부풀리지도 마세요.
+6. "의미 변경"으로 표시할 때는 원문의 무엇이(조건·수치·주체·부정과 긍정 등) 번역에서 어떻게 달라졌는지 한 문장으로 구체적으로 적으세요. "미묘하게 다름", "뉘앙스 차이" 같은 모호한 사유는 허용하지 않습니다.
+7. 1. You may cancel your subscription at any time from your account settings.
+2. Cancellations made within 7 days of the renewal date will not be charged the renewal fee.
+3. After that period, a cancellation fee of 15% of the annual plan price applies.
+4. Refunds, if applicable, are processed within 10 business days to your original payment method.
+5. You must contact support at least 48 hours before your renewal date to be eligible for a partial refund.
+6. If your account is suspended for a violation of our Terms, no refund will be issued.
+7. Annual plan subscribers who downgrade to a monthly plan mid-term will not receive a refund for the unused annual period.
+8. This cancellation policy, including the 15% cancellation fee, does not apply to gift subscriptions purchased by a third party.와 1. 계정 설정에서 언제든지 구독을 취소할 수 있습니다.
+2. 갱신일로부터 7일 이내에 취소하시면 갱신 요금이 청구되지 않습니다.
+3. 이후에는 연간 요금제 금액의 5%에 해당하는 취소 수수료가 부과됩니다.
+5. 환불을 받으려면 고객센터에 연락하실 필요가 없습니다.
+6. 이용약관 위반으로 계정이 정지된 경우 환불이 제공되지 않습니다.
+7. 연간 요금제 구독자가 기간 중 월간 요금제로 다운그레이드하는 경우, 사용하지 않은 연간 기간에 대한 환불은 제공되지 않습니다.
+8. 본 해지 정책은(해지 수수료 15% 포함) 제3자가 구매한 선물용 구독에는 적용되지 않습니다.
+또한, 구독 해지 시 수집된 개인정보는 즉시 영구 삭제됩니다.에 실제로 없는 오류나 용어를 만들어내지 마세요. 용어집 위반인지 자기 불일치인지, 의미 변경인지 의역인지 판단이 애매하면 짐작으로 등급을 정하지 말고 "판정 확인 필요"로 표시하고 애매한 이유를 한 문장으로 적으세요.
+8. 문서 맨 위에는 "전체 문장 N개 중 정확 N · 의미 변경 N · 누락 N · 오역 N / 용어집 위반 N건 · 문서 내부 자기 불일치 N건"이라는 사실 집계 한 줄만 두세요. 이 문서를 그대로 게시해도 되는지 판단하거나 권고하는 문장은 넣지 마세요 — 대조표를 작성하는 김태우, 프리랜서 번역가는 문제를 찾아 표시하는 역할이고, 게시 여부를 결정하는 것은 정민서, 로컬라이제이션 매니저의 몫입니다.
+9. 용어집 위반·문서 내부 자기 불일치·의미 변경·누락·판정 확인 필요로 표시한 모든 항목을 모아 정민서, 로컬라이제이션 매니저에게 보낼 확인 요청 목록을 만드세요. 각 줄에 "무엇이 문제인지 한 줄 요약 · 관련 문장/용어 번호 · 왜 확인이 필요한지"를 적고, 9/4(목) 배포 전까지이 있으면 그 기한을, 없으면 "가급적 빠른 시일 내"라고 표시하세요. "정확"으로 판정한 문장은 이 목록에 넣지 마세요.
+10. 표나 목록에 번호를 매길 때는 원문·번역문에 있는 문장 번호를 그대로 쓰세요. ①②③ 같은 동그라미 숫자나 새로운 기호 체계를 만들어 쓰지 마세요.
+
+출력 형식:
+- 한 줄 집계 요약 (전체 문장 N개 중 정확 N · 의미 변경 N · 누락 N · 오역 N / 용어집 위반 N건 · 문서 내부 자기 불일치 N건 — 게시 판단·권고 문장 없음)
+- 용어집 대조표 (열: 원어 용어 · 지정 번역 · 실제 번역 전체 나열(문장 번호 포함) · 판정(일치/위반/제공된 용어집 없음))
+- 문서 내부 자기 불일치 표 (열: 원어 표현 · 등장 문장 번호별 실제 번역 나열 · 판정)
+- 문장 단위 대조 카드 (열: 문장 번호 · 원문 인용 · 번역 인용 · 판정 · 판정 근거 한 줄)
+- 확인 요청 목록 (정민서, 로컬라이제이션 매니저 앞, 각 줄: 문제 요약 · 관련 번호 · 확인이 필요한 이유 · 회신 기한)
