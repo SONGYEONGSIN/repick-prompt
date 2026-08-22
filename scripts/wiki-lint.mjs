@@ -298,34 +298,109 @@ for (const d of runDirs.filter((d) => d >= SCEN_FACTS_FROM)) {
 //     사람 게이트 불필요"로 자동 채택했다. 근거가 없는 판단이 통과한 것이다.
 //     (승자 b 자체는 산출물로 재확인해 맞았다 — 틀린 건 점수 기록이다.)
 //     두 표가 함께 있을 때만 검사한다. 형식이 라운드마다 달라 소급 적용은 하지 않는다.
-const SCORES_COHERENT_FROM = '2026-08-08';
+// 2026-08-22 부터 — 그 앞은 SCORES 형식이 라운드마다 달라 소급하면 늑대소년이 된다.
+// 알고 제외하는 둘: R36(축별 표 자체가 없음, 그래서 검사 10 을 만들었다)과
+// R40(축별 평균이 총점과 5~12점 어긋남 — SCORES 에 "인용 금지"로 명시해 뒀다).
+const SCORES_COHERENT_FROM = '2026-08-22';
+
+/** 마크다운 표 하나를 {head, rows} 로 판다 — 셀은 굵게·괄호 표기를 벗겨 둔다 */
+function mdTables(src) {
+  const out = [];
+  let cur = null;
+  for (const line of src.split('\n')) {
+    const t = line.trim();
+    if (t.startsWith('|') && t.endsWith('|')) {
+      const cells = t.slice(1, -1).split('|').map((c) => c.trim().replace(/\*\*/g, ''));
+      if (/^[-\s:|]+$/.test(t.replace(/\|/g, ''))) continue; // 구분선
+      if (!cur) cur = { head: cells, rows: [] };
+      else cur.rows.push(cells);
+    } else if (cur) {
+      out.push(cur);
+      cur = null;
+    }
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+
+const num = (c) => {
+  const m = String(c).match(/-?\d+(?:\.\d+)?/);
+  return m ? Number(m[0]) : null;
+};
+const candOf = (c) => {
+  const m = String(c).trim().match(/^([a-c])\b/);
+  return m ? m[1] : null;
+};
+/** 헤더에서 후보 컬럼의 위치를 찾는다 — 앞에 '라운드'·'위치 매핑' 같은 열이 몇 개든 상관없게 */
+const candCols = (head) =>
+  head.map((h, i) => ({ cand: /^[a-c](\s|$|\()/.test(String(h).trim()) ? candOf(h) : null, i }))
+    .filter((x) => x.cand);
+
 for (const d of runDirs) {
   if (d.slice(0, 10) < SCORES_COHERENT_FROM) continue;
   const p = join(VAULT, '20-generations', d, 'SCORES.md');
   if (!existsSync(p)) continue;
-  const src = readFileSync(p, 'utf8');
-  // 라운드별 합계: "| 1 | A=a, B=b, C=c | b 35 > c 30 > a 25 |"
-  const totals = {};
+  const tables = mdTables(readFileSync(p, 'utf8'));
+
+  let axis = null;
+  let totals = null;
   let rounds = 0;
-  for (const m of src.matchAll(/^\|\s*\d+\s*\|[^|]*\|([^|]*)\|/gm)) {
-    rounds++;
-    for (const s of m[1].matchAll(/([a-z])\s+(\d+(?:\.\d+)?)/g)) {
-      totals[s[1]] = (totals[s[1]] ?? 0) + Number(s[2]);
+
+  for (const t of tables) {
+    const cc = candCols(t.head);
+
+    // 축별 표 — 첫 열이 '축'이고 후보가 열로 선다
+    if (/축/.test(String(t.head[0])) && cc.length >= 2) {
+      axis = {};
+      for (const { cand } of cc) axis[cand] = 0;
+      for (const r of t.rows) {
+        for (const { cand, i } of cc) {
+          const v = num(r[i]);
+          if (v !== null) axis[cand] += v;
+        }
+      }
+    }
+
+    // 총점 (A) 후보가 열이고 '합계' 행이 있다
+    if (cc.length >= 2) {
+      const sumRow = t.rows.find((r) => /합계|합산|총점/.test(String(r[0])));
+      if (sumRow) {
+        totals = {};
+        for (const { cand, i } of cc) totals[cand] = num(sumRow[i]);
+      }
+      const n = t.rows.filter((r) => /^\d+$/.test(String(r[0]).trim())).length;
+      if (n) rounds = n;
+    }
+
+    // 총점 (B) 후보가 행이고 '합계' 열이 있다
+    const sumCol = t.head.findIndex((h) => /합계|합산|총점/.test(String(h)));
+    if (sumCol > 0 && t.rows.length && t.rows.every((r) => candOf(r[0]))) {
+      totals = {};
+      for (const r of t.rows) totals[candOf(r[0])] = num(r[sumCol]);
+      const n = t.head.filter((h) => /^R\d+$/.test(String(h).trim())).length;
+      if (n) rounds = n;
     }
   }
-  // 축 평균: "| a | 7.67 | 7.33 | 7.00 | 5.33 | 63 |"
-  const axis = {};
-  for (const m of src.matchAll(/^\|\s*([a-z])\s*\|((?:\s*\d+(?:\.\d+)?\s*\|){4})/gm)) {
-    const nums = [...m[2].matchAll(/\d+(?:\.\d+)?/g)].map((x) => Number(x[0]));
-    axis[m[1]] = nums.reduce((s, n) => s + n, 0);
+
+  // 검사가 조용히 건너뛰면 없는 것과 같다 — R40 이 형식 변화로 파싱에 실패했는데
+  // 통과로 읽혔고, 축별 표가 총점과 5~12점 어긋난 채 머지됐다(2026-08-22 실측).
+  if (!axis || !totals) {
+    fails.push(
+      `SCORES 정합 검사 불가: ${d} — ${!axis ? '축별 표' : '총점'}을 파싱하지 못했다. 형식이 달라지면 검사가 조용히 통과한다`
+    );
+    continue;
   }
-  if (!rounds || !Object.keys(axis).length) continue;
-  for (const [cand, sum] of Object.entries(axis)) {
-    if (totals[cand] === undefined) continue;
-    const expected = sum * rounds;
-    if (Math.abs(expected - totals[cand]) > rounds * 0.5) {
+  if (!rounds) rounds = 3;
+
+  for (const [cand, aSum] of Object.entries(axis)) {
+    const total = totals[cand];
+    if (total === null || total === undefined) continue;
+    // 축별 표는 합산일 수도, 라운드 평균일 수도 있다 — 둘 중 하나로 맞으면 통과
+    const okSum = Math.abs(aSum - total) <= 0.5;
+    const okAvg = Math.abs(aSum * rounds - total) <= rounds * 0.5;
+    if (!okSum && !okAvg) {
       fails.push(
-        `SCORES 불일치: ${d} 후보 ${cand} — 축 평균 합 ${sum.toFixed(2)} × ${rounds}라운드 = ${expected.toFixed(1)} ≠ 라운드 합계 ${totals[cand]}. 심사 기록이 스스로와 어긋나면 승자 판단의 근거가 없다`
+        `SCORES 불일치: ${d} 후보 ${cand} — 축별 합 ${aSum.toFixed(1)} (합산으로 보면 ${aSum.toFixed(1)}, 평균으로 보면 ×${rounds}=${(aSum * rounds).toFixed(1)}) ≠ 총점 ${total}. 심사 기록이 스스로와 어긋나면 승자 판단의 근거가 없다`
       );
     }
   }
