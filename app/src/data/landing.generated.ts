@@ -28,7 +28,7 @@ export const GROUPS: Group[] = [
   {
     "id": "audit",
     "name": "분석·검증",
-    "count": 10
+    "count": 11
   },
   {
     "id": "message",
@@ -58,6 +58,22 @@ export const GROUPS: Group[] = [
 ];
 
 export const ITEMS: Item[] = [
+  {
+    "slug": "translation-consistency-check",
+    "title": "번역·표기 일관성 점검표",
+    "desc": "원문과 번역문을 문장 단위로 넣으면 정확/의미 변경/누락/표기·용어 불일치 넷으로 판정하고, 번역문 전체를 별도로 다시 훑어 원문에 없는 첨언까지 잡아냅니다. 판정이 애매한 항목과 첨언은 원 번역자에게 확인 요청으로 라우팅해, 게시 여부 결정은 앞지르지 않습니다.",
+    "group": "audit",
+    "outputs": [
+      "한 줄 집계 요약",
+      "문장별 대조 카드",
+      "역방향 스캔: 원문에 없는 첨언",
+      "확인·수정 요청 목록"
+    ],
+    "fields": 8,
+    "round": 40,
+    "score": 108,
+    "sample": "## 집계 요약\n전체 문장 8개 중 정확 4 · 의미 변경 2 · 누락 1 · 표기·용어 불일치 1 · 확인 필요 0\n## 문장별 대조 카드\n**1**\n- 원문 인용: You may cancel your subscription at any time from your account settings.\n- 번역 인용: 계정 설정에서 언제든지 구독을 취소할 수 있습니다.\n- 판정: 정확\n- 사유: 주체·시점·장소·행위(언제든지/계정 설정/취소)가 모두 그대로 전달됨.\n**2**\n- 원문 인용: Cancellations made within 7 days of the renewal date will not be charged the renewal fee.\n- 번역 인용: 갱신일로부터 7일 이내에 취소하시면 갱신 요금이 청구되지 않습니다.\n- 판정: 정확\n- 사유: 기한(7일)·기준일(갱신일)·결과(요금 미청구)가 그대로 전달됨.\n**3**"
+  },
   {
     "slug": "bug-reproduction-report",
     "title": "버그 재현 절차 보고서",
@@ -807,5 +823,5 @@ export const ITEMS: Item[] = [
   }
 ];
 
-export const ROUND_TOTAL = 39;
-export const WITH_SAMPLE = 38;
+export const ROUND_TOTAL = 40;
+export const WITH_SAMPLE = 39;
