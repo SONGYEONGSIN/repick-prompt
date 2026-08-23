@@ -6,7 +6,9 @@
     "dev": "next dev -p 3200",
     "build": "NODE_ENV=production next build",
     "start": "NODE_ENV=production next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "predev": "node ../scripts/build-landing-data.mjs",
+    "prebuild": "node ../scripts/build-landing-data.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.24.0",
