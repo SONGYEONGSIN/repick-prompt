@@ -1,0 +1,32 @@
+name: 라운드 자동 머지
+
+# 라운드 PR 이 사람 사정으로 며칠씩 열려 있으면 0번 선행 가드가 다음 라운드를 통째로 중단한다.
+# 2026-08~09 실측: 그렇게 잃은 라운드가 10회 이상(2·5·3회)인데, 사람 리뷰가 머지를 막아
+# 되돌린 PR 은 0건이었다 — 잡은 결함은 전부 보정 커밋으로 처리됐다.
+# 그래서 evolve/* 만 자동 머지하고, 리뷰는 머지 뒤에 보정 커밋으로 계속한다.
+#
+# 조건은 그대로다 — 브랜치 보호가 required check(verify) 를 강제하므로
+# CI 가 초록이 되기 전에는 auto-merge 가 걸려 있어도 머지되지 않는다.
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable:
+    # 라운드 산출물만 — fix/*·chore/* 는 지금처럼 사람이 닫는다
+    if: startsWith(github.head_ref, 'evolve/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: auto-merge 예약
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr merge --auto --squash "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}"
+          echo "::notice::evolve PR #${{ github.event.pull_request.number }} — verify 통과 시 자동 머지된다"
