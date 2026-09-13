@@ -1,4 +1,16 @@
-# 후보 c — 매칭 그룹 단위로 분할입금·합산입금·이월 잔액을 검산해 미배정 입금과 확인필요를 가르는 채권 회수 대조표
+---
+tags: ["template", "analysis"]
+slug: "receivable-reconciliation"
+categoryId: "analysis"
+title: "채권 회수 현황 대조표"
+description: "청구 내역과 입금 기록을 매칭 그룹 단위로 대조해 분할입금·합산입금·이월 잔액을 검산하고, 미배정 입금과 확인필요 항목을 정직하게 가르는 채권 회수 대조표"
+promoted: "2026-09-13-receivable-reconciliation"
+order: 61
+---
+
+# 채권 회수 현황 대조표
+
+승격 [[2026-09-13-receivable-reconciliation/DECISION|라운드]]
 
 ## 필드
 
