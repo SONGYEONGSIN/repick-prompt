@@ -76,7 +76,7 @@ tags: [backlog, prompt]
 - [x] 채권 회수 현황 대조표 — 청구 내역과 입금 기록을 맞춰 미수·과입금을 밝힘 → 2026-09-13-receivable-reconciliation (R52)
 - [x] 반품·교환 사유 집계표 — 접수된 사유를 유형별로 묶고 각 유형의 근거 건을 짚음 → 2026-09-14-return-exchange-reason-tally (R53)
 - [x] 장비 점검 이력 대조표 — 점검 주기 기준과 실제 점검 기록을 맞춰 누락 회차를 드러냄 → 2026-09-15-equipment-inspection-history-reconciliation (R54)
-- [ ] 권한·접근 현황 점검표 — 사람×권한 현황을 직무 기준과 대조해 과다 권한을 드러냄
+- [x] 권한·접근 현황 점검표 — 사람×권한 현황을 직무 기준과 대조해 과다 권한을 드러냄 → 2026-09-16-access-permission-review (R55)
 
 ### 대기열 선정 기준 (2026-08-08~)
 
