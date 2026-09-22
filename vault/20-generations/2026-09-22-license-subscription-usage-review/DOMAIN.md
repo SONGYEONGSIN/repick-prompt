@@ -4,7 +4,7 @@ tags: [domain-query, prompt]
 
 # DOMAIN — 라이선스·구독 사용 현황 점검
 
-> named query 실행 시점: GENERATE 방향 풀 설계 직전. [[../../40-queries/domain-fit|질의 템플릿]] 참고.
+> named query 실행 시점: GENERATE 방향 풀 설계 직전. [[40-queries/domain-fit|질의 템플릿]] 참고.
 
 ## 1. 본질 리스크
 
@@ -26,10 +26,10 @@ tags: [domain-query, prompt]
 
 ## 4. 유사 라운드 전례
 
-- **[[../2026-09-16-access-permission-review/DECISION|R55 access-permission-review]]**: 구조가 가장 가깝다 — "보유 자격 vs 실제 배정"을 대조해 정상/과다/즉시회수/확인필요로 판정하고 실제 조치자에게 라우팅. 이 라운드는 그 구조에 **비용(유휴=낭비)** 축을 얹는다. v1.29(카테고리 전체집합 배제), v1.27(라우팅은 결정권자가 아니라 실제 조치자), v1.50(번호결번 방지)이 그대로 적용 후보.
-- **[[../2026-08-26-inventory-physical-count-reconciliation/DECISION|R45 inventory-physical-count-reconciliation]]**: "장부 수량(보유) vs 실사용 카운트"라는 뼈대가 이 도메인과 사실상 동형이다. R45가 확정한 v1.44(정량적 임계값이 정성적 위험 신호를 지우면 안 된다)가 직접 재현 후보 — 여기서는 "월 비용이 작다"는 이유로 위험 신호(퇴사자 계정 활성 상태)를 거르면 안 된다.
-- **[[../2026-09-15-equipment-inspection-history-reconciliation/DECISION|R54]]**: 번호 매긴 로스터에서 이탈 항목(계약 해지된 도구) 처리 — 결번 방지.
-- **[[../2026-09-13-receivable-reconciliation/DECISION|R52]]**: N:M 매칭이 필요할 수도 있다(한 도구 계약이 여러 부서에 걸쳐 배정) — 다만 이 도메인은 보통 "도구 단위 절 + 그 안에 계정별 대조"로 충분해 R52의 그룹 매칭까지는 필요치 않을 가능성이 높다(1차 판단: 불필요, c에서 시험).
+- **[[2026-09-16-access-permission-review/DECISION|R55 access-permission-review]]**: 구조가 가장 가깝다 — "보유 자격 vs 실제 배정"을 대조해 정상/과다/즉시회수/확인필요로 판정하고 실제 조치자에게 라우팅. 이 라운드는 그 구조에 **비용(유휴=낭비)** 축을 얹는다. v1.29(카테고리 전체집합 배제), v1.27(라우팅은 결정권자가 아니라 실제 조치자), v1.50(번호결번 방지)이 그대로 적용 후보.
+- **[[2026-08-26-inventory-physical-count-reconciliation/DECISION|R45 inventory-physical-count-reconciliation]]**: "장부 수량(보유) vs 실사용 카운트"라는 뼈대가 이 도메인과 사실상 동형이다. R45가 확정한 v1.44(정량적 임계값이 정성적 위험 신호를 지우면 안 된다)가 직접 재현 후보 — 여기서는 "월 비용이 작다"는 이유로 위험 신호(퇴사자 계정 활성 상태)를 거르면 안 된다.
+- **[[2026-09-15-equipment-inspection-history-reconciliation/DECISION|R54]]**: 번호 매긴 로스터에서 이탈 항목(계약 해지된 도구) 처리 — 결번 방지.
+- **[[2026-09-13-receivable-reconciliation/DECISION|R52]]**: N:M 매칭이 필요할 수도 있다(한 도구 계약이 여러 부서에 걸쳐 배정) — 다만 이 도메인은 보통 "도구 단위 절 + 그 안에 계정별 대조"로 충분해 R52의 그룹 매칭까지는 필요치 않을 가능성이 높다(1차 판단: 불필요, c에서 시험).
 
 ## 5. 방향 풀 추천
 
