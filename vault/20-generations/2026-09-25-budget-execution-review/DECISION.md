@@ -66,10 +66,10 @@ DOMAIN.md는 "b(우선순위포함형)가 승리하고 그 우위가 표에서 �
 
 ## 검증 (순서 고정)
 
-- `node scripts/build-plugin-bundle.mjs` — 결과는 아래 기록
-- `node scripts/build-library.mjs` — 결과는 아래 기록
-- `node scripts/wiki-lint.mjs` — 결과는 아래 기록
-- `node --test scripts/lib/template-md.test.mjs scripts/build-library.test.mjs scripts/library-snapshot.test.mjs` — 결과는 아래 기록
-- `cd app && npm run lint && npm run build` — 결과는 아래 기록
+- `node scripts/build-plugin-bundle.mjs` — 통과 (`plugin/skills/reprompt — DNA v1.57 + 라이브러리 69종 번들`)
+- `node scripts/build-library.mjs` — 통과 (`app/src/data/templates.generated.ts — 템플릿 69종 / 카테고리 11종`)
+- `node scripts/wiki-lint.mjs` — 첫 실행 5건 FAIL(홈 결정 체인 누락 1건, SCENARIO 사실 누락/심사 패킷 수치 누락 — 후보 c의 ISO 날짜 표기가 SCENARIO.md에 없어 발생, SCORES 축별 합계 산술 오류 2건) → 원인 수정 후 재실행 `0 fail, 0 warn` 통과
+- `node --test scripts/lib/template-md.test.mjs scripts/build-library.test.mjs scripts/library-snapshot.test.mjs` — 통과 (47 tests, 0 fail)
+- `cd app && npm install && npm run lint && npm run build` — 통과 (lint 무경고, build 성공 — landing.generated.ts 템플릿 69종 확인, `/p/[slug]` 74경로 정적 생성 완료)
 
-(각 명령의 실제 실행 결과는 PR 본문 Test plan에 기록)
+(각 명령의 실제 실행 결과는 PR 본문 Test plan에도 기록)
